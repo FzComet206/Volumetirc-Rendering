@@ -8,17 +8,12 @@ public class InputManager: MonoBehaviour
     public InputAction esc;
     public bool escCooldown;
 
-    private void Start()
-    {
-    }
-
     void Update()
     {
         if (esc.ReadValue<float>() > 0f)
         {
             if (!escCooldown)
             {
-                Debug.Log("???");
                 sceneUI.SetActive(!sceneUI.activeSelf);
                 escCooldown = true;
                 Invoke("SetCD", 0.2f);

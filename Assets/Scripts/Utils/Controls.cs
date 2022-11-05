@@ -4,6 +4,8 @@ using UnityEngine.InputSystem;
 
 public class Controls : MonoBehaviour
 {
+    private GameObject sceneUI;
+    
     // Start is called before the first frame update
     [SerializeField] InputAction cruise;
     [SerializeField] InputAction mouse;
@@ -15,9 +17,17 @@ public class Controls : MonoBehaviour
     private float xRotation;
     private float yRotation;
 
-    // Update is called once per frame
+    private void Start()
+    {
+        sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
+    }
+
     private void FixedUpdate()
     {
+        if (sceneUI.activeSelf)
+        {
+            return;
+        }
         // movement
         Vector3 c = cruise.ReadValue<Vector3>();
         Vector3 forward = c.z * transform.forward;

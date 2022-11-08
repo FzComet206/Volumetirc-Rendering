@@ -42,10 +42,75 @@ public class SimAndRender: MonoBehaviour
     private void Start()
     {
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
-        CreateComputeBuffer();
         InitGizmosMesh();
+        CreateComputeBuffer();
     }
 
+    private void OnRenderImage(RenderTexture src, RenderTexture dest)
+    {
+        if (sceneUI.activeSelf)
+        {
+            Graphics.Blit(src, dest);
+            return;
+        }
+        
+        // handle simulation
+        stableFluid.SetBuffer(0, "GridOne", simulationGrid0ne);
+        stableFluid.SetBuffer(0, "GridTwo", simulationGridTwo);
+        stableFluid.SetFloat("gridSize", gridSize);
+
+        int threadGroupSim = Mathf.CeilToInt(gridSize / 4f);
+        stableFluid.Dispatch(0, threadGroupSim, threadGroupSim, threadGroupSim);
+
+        // handle rendering
+        UpdateRenderTexture();
+        volumeRender.SetTexture(0, "source", src);
+        volumeRender.SetTexture(0, "target", target);
+        volumeRender.SetBuffer(0, "GridOne", simulationGrid0ne);
+        volumeRender.SetFloat("gridSize", gridSize);
+        
+        int threadGroupX = Mathf.CeilToInt(cam.pixelWidth / 8f);
+        int threadGroupY = Mathf.CeilToInt(cam.pixelHeight / 8f);
+        volumeRender.Dispatch(0, threadGroupX, threadGroupY, 1);
+        Graphics.Blit(target, dest);
+    }
+
+    private void CreateComputeBuffer()
+    {
+        simulationGrid0ne =
+            new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float), ComputeBufferType.Structured);
+        simulationGridTwo =
+            new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float), ComputeBufferType.Structured);
+    }
+    
+    private void UpdateRenderTexture()
+    {
+        if (target == null || target.width != cam.pixelWidth || target.height != cam.pixelHeight)
+        {
+            if (target != null)
+            {
+                target.Release();
+            }
+            target = new RenderTexture(cam.pixelWidth, cam.pixelHeight, 0, RenderTextureFormat.ARGBFloat,
+                RenderTextureReadWrite.Linear);
+            target.enableRandomWrite = true;
+            target.Create();
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (simulationGrid0ne != null)
+        {
+            simulationGrid0ne.Dispose();
+        }
+
+        if (simulationGridTwo != null)
+        {
+            simulationGridTwo.Dispose();
+        }
+    }
+    
     private void InitGizmosMesh()
     {
         int size = gizmoMeshRes * gizmoMeshRes;
@@ -105,9 +170,10 @@ public class SimAndRender: MonoBehaviour
             o.GetComponent<MeshRenderer>().sharedMaterial = m;
             o.GetComponent<MeshCollider>().sharedMesh = gizmoMesh;
             o.transform.localScale = Vector3.one * gizmoScale;
+            o.layer = 6;
         }
         
-        Vector3 pos = transform.position;
+        Vector3 pos = Vector3.zero;
         float offset = (gizmoMeshRes - 1) * gizmoScale;
         objs[0].transform.position = new Vector3(pos.x, pos.y, pos.z);
         
@@ -146,120 +212,6 @@ public class SimAndRender: MonoBehaviour
             
             glWireVertices.Add(tempV);
             glWireTriangles.Add(tempT);
-        }
-    }
-
-    private void OnRenderImage(RenderTexture src, RenderTexture dest)
-    {
-        if (sceneUI.activeSelf)
-        {
-            Graphics.Blit(src, dest);
-            return;
-        }
-        
-        // handle rendering
-        UpdateRenderTexture();
-        volumeRender.SetTexture(0, "source", src);
-        volumeRender.SetTexture(0, "target", target);
-
-        int threadGroupX = Mathf.CeilToInt(cam.pixelWidth / 8f);
-        int threadGroupY = Mathf.CeilToInt(cam.pixelHeight / 8f);
-        
-        volumeRender.Dispatch(0, threadGroupX, threadGroupY, 1);
-        Graphics.Blit(target, dest);
-    }
-
-    private void CreateComputeBuffer()
-    {
-        simulationGrid0ne =
-            new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float), ComputeBufferType.Structured);
-        simulationGridTwo =
-            new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float), ComputeBufferType.Structured);
-    }
-    
-    private void UpdateRenderTexture()
-    {
-        if (target == null || target.width != cam.pixelWidth || target.height != cam.pixelHeight)
-        {
-            if (target != null)
-            {
-                target.Release();
-            }
-            target = new RenderTexture(cam.pixelWidth, cam.pixelHeight, 0, RenderTextureFormat.ARGBFloat,
-                RenderTextureReadWrite.Linear);
-            target.enableRandomWrite = true;
-            target.Create();
-        }
-    }
-
-    private void OnPreRender()
-    {
-        GL.wireframe = true;
-    }
-
-    private void OnPostRender()
-    {
-        GL.wireframe = false;
-    }
-
-    void DrawGlWire()
-    {
-        GL.PushMatrix();
-        
-        glwiremat.SetPass( 0 );
-        GL.Begin(GL.LINES);
-
-        RenderWireList(glWireVertices[0], glWireTriangles[0], new Color(Color.cyan.r, Color.cyan.g, Color.cyan.b));
-        RenderWireList(glWireVertices[1], glWireTriangles[1], new Color(Color.cyan.r, Color.cyan.g, Color.cyan.b));
-            
-        RenderWireList(glWireVertices[2], glWireTriangles[2], new Color(Color.yellow.r, Color.yellow.g, Color.yellow.b));
-        RenderWireList(glWireVertices[3], glWireTriangles[3], new Color(Color.yellow.r, Color.yellow.g, Color.yellow.b));
-       
-        RenderWireList(glWireVertices[4], glWireTriangles[4], new Color(Color.green.r, Color.green.g, Color.green.b));
-        RenderWireList(glWireVertices[5], glWireTriangles[5], new Color(Color.green.r, Color.green.g, Color.green.b));
-        
-        GL.End();
-        GL.PopMatrix();
-    }
-
-    void RenderWireList(Vector3[] vertices, int[] triangles, Color color)
-    {
-        GL.Color(color);
-        for (int i = 0; i < triangles.Length; i+=6)
-        {
-            GL.Vertex(vertices[triangles[i]]);
-            GL.Vertex(vertices[triangles[i+1]]);
-            
-            GL.Vertex(vertices[triangles[i+1]]);
-            GL.Vertex(vertices[triangles[i+2]]);
-            
-            GL.Vertex(vertices[triangles[i+2]]);
-            GL.Vertex(vertices[triangles[i]]);
-            
-            GL.Vertex(vertices[triangles[i+3]]);
-            GL.Vertex(vertices[triangles[i+4]]);
-            
-            GL.Vertex(vertices[triangles[i+4]]);
-            GL.Vertex(vertices[triangles[i+5]]);
-            
-            GL.Vertex(vertices[triangles[i+5]]);
-            GL.Vertex(vertices[triangles[i]]);
-            
-            GL.Vertex(vertices[triangles[i+1]]);
-            GL.Vertex(vertices[triangles[i+5]]);
-        }
-    }
-
-    private void OnDestroy()
-    {
-        if (simulationGrid0ne != null)
-        {
-            simulationGrid0ne.Dispose();
-        }
-
-        if (simulationGridTwo != null)
-        {
-            simulationGridTwo.Dispose();
         }
     }
 }

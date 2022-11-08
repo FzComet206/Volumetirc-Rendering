@@ -12,13 +12,9 @@ int CoordToIndex(int x, int y, int z)
 }
 
 
-[numthreads(8,1,1)]
+[numthreads(4,4,4)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    int x = id.x / (gridSize * gridSize);
-    int y = (id.x / gridSize) % gridSize;
-    int z = id.x % gridSize;
-
-    float3 scaled = float3(x / 500., y / 500., z / 500.);
+    float3 scaled = float3(id.x / 500., id.y / 500., id.z / 500.);
     GridOne[id.x] = snoise(scaled);
 }

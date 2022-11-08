@@ -9,12 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: fbe8280be8c2deb42beee377f28e3ea8
   - enabled: 1
-    path: Assets/Scenes/FluidSim.unity
-    guid: 4537aee3a8afe474ba274d8042ad7c0b
+    path: Assets/Scenes/FluidSimulation.unity
+    guid: eb58262bc9d98db488ed55555092c25b
   - enabled: 1
     path: Assets/Scenes/NBodySim.unity
     guid: 4e49d457ac8fa86449d99ade73a37964
-  - enabled: 0
-    path: Assets/Scenes/Options.unity
-    guid: bd7306af9e458da4fb3002b533e4f17a
   m_configObjects: {}

@@ -19,6 +19,6 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     int y = (id.x / gridSize) % gridSize;
     int z = id.x % gridSize;
 
-    float3 scaled = float3(x / 200., y / 200., z / 200.);
+    float3 scaled = float3(x / 500., y / 500., z / 500.);
     GridOne[id.x] = snoise(scaled);
 }

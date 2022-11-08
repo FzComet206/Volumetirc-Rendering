@@ -15,6 +15,16 @@ public class InputManager: MonoBehaviour
             if (!escCooldown)
             {
                 sceneUI.SetActive(!sceneUI.activeSelf);
+                
+                if (sceneUI.activeSelf)
+                {
+                    Cursor.visible = true;
+                }
+                else
+                {
+                    Cursor.visible = false;
+                }
+                
                 escCooldown = true;
                 Invoke("SetCD", 0.2f);
             }

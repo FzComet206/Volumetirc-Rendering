@@ -28,15 +28,13 @@ public class SimAndRender: MonoBehaviour
     private ComputeBuffer simulationGridTwo;
 
     [SerializeField] private Material m;
+    [SerializeField] private Material glwiremat;
+    
     [SerializeField] 
     [Range(2, 20)]
     private int gizmoMeshRes = 6;
     private Mesh gizmoMesh;
     private int gizmoScale = 100;
-    public Mesh[] wireMesh;
-
-    public Vector3[] testV;
-    public int[] testT;
 
     public List<Vector3[]> glWireVertices;
     public List<int[]> glWireTriangles;
@@ -98,9 +96,6 @@ public class SimAndRender: MonoBehaviour
         gizmoMesh.RecalculateNormals();
         gizmoMesh.RecalculateBounds();
 
-        testV = new Vector3[size];
-        testT = new int[triSize];
-
         GameObject[] objs = new GameObject[6];
         for (int i = 0; i < 6; i++)
         {
@@ -130,12 +125,6 @@ public class SimAndRender: MonoBehaviour
         
         objs[5].transform.position = new Vector3(pos.x, pos.y, pos.z + offset);
         objs[5].transform.Rotate(Vector3.up, 90);
-
-        wireMesh = new Mesh[6];
-        for (int i = 0; i < 6; i++)
-        {
-            wireMesh[i] = objs[i].GetComponent<Mesh>();
-        }
 
         glWireVertices = new List<Vector3[]>();
         glWireTriangles = new List<int[]>();
@@ -187,6 +176,7 @@ public class SimAndRender: MonoBehaviour
         simulationGridTwo =
             new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float), ComputeBufferType.Structured);
     }
+    
     private void UpdateRenderTexture()
     {
         if (target == null || target.width != cam.pixelWidth || target.height != cam.pixelHeight)
@@ -202,6 +192,64 @@ public class SimAndRender: MonoBehaviour
         }
     }
 
+    private void OnPreRender()
+    {
+        GL.wireframe = true;
+    }
+
+    private void OnPostRender()
+    {
+        GL.wireframe = false;
+    }
+
+    void DrawGlWire()
+    {
+        GL.PushMatrix();
+        
+        glwiremat.SetPass( 0 );
+        GL.Begin(GL.LINES);
+
+        RenderWireList(glWireVertices[0], glWireTriangles[0], new Color(Color.cyan.r, Color.cyan.g, Color.cyan.b));
+        RenderWireList(glWireVertices[1], glWireTriangles[1], new Color(Color.cyan.r, Color.cyan.g, Color.cyan.b));
+            
+        RenderWireList(glWireVertices[2], glWireTriangles[2], new Color(Color.yellow.r, Color.yellow.g, Color.yellow.b));
+        RenderWireList(glWireVertices[3], glWireTriangles[3], new Color(Color.yellow.r, Color.yellow.g, Color.yellow.b));
+       
+        RenderWireList(glWireVertices[4], glWireTriangles[4], new Color(Color.green.r, Color.green.g, Color.green.b));
+        RenderWireList(glWireVertices[5], glWireTriangles[5], new Color(Color.green.r, Color.green.g, Color.green.b));
+        
+        GL.End();
+        GL.PopMatrix();
+    }
+
+    void RenderWireList(Vector3[] vertices, int[] triangles, Color color)
+    {
+        GL.Color(color);
+        for (int i = 0; i < triangles.Length; i+=6)
+        {
+            GL.Vertex(vertices[triangles[i]]);
+            GL.Vertex(vertices[triangles[i+1]]);
+            
+            GL.Vertex(vertices[triangles[i+1]]);
+            GL.Vertex(vertices[triangles[i+2]]);
+            
+            GL.Vertex(vertices[triangles[i+2]]);
+            GL.Vertex(vertices[triangles[i]]);
+            
+            GL.Vertex(vertices[triangles[i+3]]);
+            GL.Vertex(vertices[triangles[i+4]]);
+            
+            GL.Vertex(vertices[triangles[i+4]]);
+            GL.Vertex(vertices[triangles[i+5]]);
+            
+            GL.Vertex(vertices[triangles[i+5]]);
+            GL.Vertex(vertices[triangles[i]]);
+            
+            GL.Vertex(vertices[triangles[i+1]]);
+            GL.Vertex(vertices[triangles[i+5]]);
+        }
+    }
+
     private void OnDestroy()
     {
         if (simulationGrid0ne != null)
@@ -213,29 +261,5 @@ public class SimAndRender: MonoBehaviour
         {
             simulationGridTwo.Dispose();
         }
-    }
-
-    private void OnDrawGizmos()
-    {
-        Vector3 pos = transform.position;
-        float offset = (gizmoMeshRes - 1) * gizmoScale;
-        
-        Gizmos.color = new Color(Color.cyan.r, Color.cyan.g, Color.cyan.b, 0.2f);
-        Gizmos.DrawWireMesh(
-            gizmoMesh, 0, new Vector3(pos.x, pos.y, pos.z), Quaternion.Euler(0,0,0), Vector3.one * gizmoScale);
-        Gizmos.DrawWireMesh(
-            gizmoMesh, 0, new Vector3(pos.x, pos.y, pos.z + offset), Quaternion.Euler(0,0,0), Vector3.one * gizmoScale);
-        
-        Gizmos.color = new Color(Color.yellow.r, Color.yellow.g, Color.yellow.b, 0.2f);
-        Gizmos.DrawWireMesh(
-            gizmoMesh, 0, new Vector3(pos.x, pos.y, pos.z), Quaternion.Euler(0,-90,0), Vector3.one * gizmoScale);
-        Gizmos.DrawWireMesh(
-            gizmoMesh, 0, new Vector3(pos.x + offset, pos.y, pos.z), Quaternion.Euler(0,-90,0), Vector3.one * gizmoScale);
-        
-        Gizmos.color = new Color(Color.green.r, Color.green.g, Color.green.b, 0.2f);
-        Gizmos.DrawWireMesh(
-            gizmoMesh, 0, new Vector3(pos.x, pos.y, pos.z), Quaternion.Euler(90,0,0), Vector3.one * gizmoScale);
-        Gizmos.DrawWireMesh(
-            gizmoMesh, 0, new Vector3(pos.x, pos.y + offset, pos.z), Quaternion.Euler(90,0,0), Vector3.one * gizmoScale);
     }
 }

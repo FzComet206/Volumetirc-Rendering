@@ -3,9 +3,11 @@
 Texture2D<float4> source;
 RWTexture2D<float4> target;
 
+float worldToGrid;
 float gridSize;
 RWStructuredBuffer<float> GridOne;
 
+float4 lightOne;
 
 int CoordToIndex(int x, int y, int z)
 {

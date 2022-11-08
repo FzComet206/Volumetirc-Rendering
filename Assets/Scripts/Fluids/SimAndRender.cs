@@ -18,17 +18,17 @@ public class SimAndRender: MonoBehaviour
 {
     [SerializeField] private ComputeShader stableFluid;
     [SerializeField] private ComputeShader volumeRender;
-    [SerializeField] Camera cam;
     
     private GameObject sceneUI;
     private RenderTexture target;
+    private Camera cam;
 
     private int gridSize = 128;
     private ComputeBuffer simulationGrid0ne; 
     private ComputeBuffer simulationGridTwo;
 
     [SerializeField] private Material m;
-    [SerializeField] private Material glwiremat;
+    [SerializeField] private GameObject lightOne;
     
     [SerializeField] 
     [Range(2, 20)]
@@ -41,6 +41,7 @@ public class SimAndRender: MonoBehaviour
 
     private void Start()
     {
+        cam = GetComponent<Camera>();
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
         InitGizmosMesh();
         CreateComputeBuffer();
@@ -68,6 +69,8 @@ public class SimAndRender: MonoBehaviour
         volumeRender.SetTexture(0, "target", target);
         volumeRender.SetBuffer(0, "GridOne", simulationGrid0ne);
         volumeRender.SetFloat("gridSize", gridSize);
+        volumeRender.SetFloat("worldToGrid", gizmoScale * (gizmoMeshRes - 1f) / gridSize);
+        volumeRender.SetVector("lightOne", lightOne.transform.position);
         
         int threadGroupX = Mathf.CeilToInt(cam.pixelWidth / 8f);
         int threadGroupY = Mathf.CeilToInt(cam.pixelHeight / 8f);

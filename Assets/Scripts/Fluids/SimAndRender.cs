@@ -72,6 +72,7 @@ public class SimAndRender: MonoBehaviour
         volumeRender.SetFloat("worldToGrid", gizmoScale * (gizmoMeshRes - 1f) / gridSize);
         volumeRender.SetVector("lightOne", lightOne.transform.position);
         
+        
         int threadGroupX = Mathf.CeilToInt(cam.pixelWidth / 8f);
         int threadGroupY = Mathf.CeilToInt(cam.pixelHeight / 8f);
         volumeRender.Dispatch(0, threadGroupX, threadGroupY, 1);

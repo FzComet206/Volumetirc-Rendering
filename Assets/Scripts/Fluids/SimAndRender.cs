@@ -14,37 +14,52 @@ public class RealtimeInput
     public float outputDensity;
 }
 
+[System.Serializable]
+public class VolumeRenderingInput
+{
+}
+
 public class SimAndRender: MonoBehaviour
 {
-    [SerializeField] private ComputeShader stableFluid;
-    [SerializeField] private ComputeShader volumeRender;
-    
     private GameObject sceneUI;
-    private RenderTexture target;
     private Camera cam;
 
-    private int gridSize = 128;
-    private ComputeBuffer simulationGrid0ne; 
-    private ComputeBuffer simulationGridTwo;
-
     [SerializeField] private Material m;
-    [SerializeField] private GameObject lightOne;
-    
-    [SerializeField] 
-    [Range(2, 20)]
-    private int gizmoMeshRes = 6;
+    [SerializeField] [Range(2, 20)] private int gizmoMeshRes = 6;
     private Mesh gizmoMesh;
     private int gizmoScale = 100;
 
     public List<Vector3[]> glWireVertices;
     public List<int[]> glWireTriangles;
+    
+    // things to do with simulation
+    [SerializeField] private ComputeShader stableFluid;
+    [SerializeField] private GameObject lightOne;
+    private ComputeBuffer simulationGrid0ne; 
+    private ComputeBuffer simulationGridTwo;
+    private int gridSize = 512;
+    
+    // things to do with rendering
+    [SerializeField] private Shader volumeRender;
+    [HideInInspector] public Material volumeMaterial;
 
+    // rendering input
+    private Vector3 lightPosition;
+    [Header("VolumeRendering Input")]
+    [SerializeField] Color lightColor;
+    [SerializeField] float maxRange;
+    [SerializeField] float minRange;
+    [SerializeField] int steps;
+    [SerializeField] int lightStepsPer100Distance;
+    [SerializeField] float sigma_a;
+    [SerializeField] float sigma_b;
+    [SerializeField] float opacityStopLimit;
     private void Start()
     {
         cam = GetComponent<Camera>();
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
         InitGizmosMesh();
-        CreateComputeBuffer();
+        InitBuffers();
     }
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -58,63 +73,48 @@ public class SimAndRender: MonoBehaviour
         // handle simulation
         stableFluid.SetBuffer(0, "GridOne", simulationGrid0ne);
         stableFluid.SetBuffer(0, "GridTwo", simulationGridTwo);
-        stableFluid.SetFloat("gridSize", gridSize);
+        stableFluid.SetInt("gridSize", gridSize);
 
-        int threadGroupSim = Mathf.CeilToInt(gridSize / 4f);
+        int threadGroupSim = gridSize / 4;
         stableFluid.Dispatch(0, threadGroupSim, threadGroupSim, threadGroupSim);
 
         // handle rendering
-        UpdateRenderTexture();
-        volumeRender.SetTexture(0, "source", src);
-        volumeRender.SetTexture(0, "target", target);
-        volumeRender.SetBuffer(0, "GridOne", simulationGrid0ne);
-        volumeRender.SetFloat("gridSize", gridSize);
-        volumeRender.SetFloat("worldToGrid", gizmoScale * (gizmoMeshRes - 1f) / gridSize);
-        volumeRender.SetVector("lightOne", lightOne.transform.position);
+        UpdateMaterial();
+        volumeMaterial.SetBuffer("densityBuffer", simulationGrid0ne);
+        volumeMaterial.SetInt("gridSize", gridSize);
         
+        volumeMaterial.SetColor("lightColor", lightColor);
+        volumeMaterial.SetFloat("maxRange", maxRange);
+        volumeMaterial.SetFloat("minRange", minRange);
+        volumeMaterial.SetInt("steps", steps);
+        volumeMaterial.SetInt("lightStepsPer100Distance", lightStepsPer100Distance);
+        volumeMaterial.SetFloat("sigma_a", sigma_a);
+        volumeMaterial.SetFloat("sigma_b", sigma_b);
+        volumeMaterial.SetFloat("opacityStopLimit", opacityStopLimit);
         
-        int threadGroupX = Mathf.CeilToInt(cam.pixelWidth / 8f);
-        int threadGroupY = Mathf.CeilToInt(cam.pixelHeight / 8f);
-        volumeRender.Dispatch(0, threadGroupX, threadGroupY, 1);
-        Graphics.Blit(target, dest);
+        Graphics.Blit(src, dest, volumeMaterial);
     }
 
-    private void CreateComputeBuffer()
+    private void UpdateMaterial()
     {
-        simulationGrid0ne =
-            new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float), ComputeBufferType.Structured);
-        simulationGridTwo =
-            new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float), ComputeBufferType.Structured);
-    }
-    
-    private void UpdateRenderTexture()
-    {
-        if (target == null || target.width != cam.pixelWidth || target.height != cam.pixelHeight)
+        if (volumeMaterial == null || volumeMaterial.shader != volumeRender)
         {
-            if (target != null)
-            {
-                target.Release();
-            }
-            target = new RenderTexture(cam.pixelWidth, cam.pixelHeight, 0, RenderTextureFormat.ARGBFloat,
-                RenderTextureReadWrite.Linear);
-            target.enableRandomWrite = true;
-            target.Create();
+            volumeMaterial = new Material(volumeRender);
         }
+    }
+
+    private void InitBuffers()
+    {
+        simulationGrid0ne = new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float));
+        simulationGridTwo = new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float));
     }
 
     private void OnDestroy()
     {
-        if (simulationGrid0ne != null)
-        {
-            simulationGrid0ne.Dispose();
-        }
-
-        if (simulationGridTwo != null)
-        {
-            simulationGridTwo.Dispose();
-        }
+        simulationGrid0ne.Dispose();
+        simulationGridTwo.Dispose();
     }
-    
+
     private void InitGizmosMesh()
     {
         int size = gizmoMeshRes * gizmoMeshRes;

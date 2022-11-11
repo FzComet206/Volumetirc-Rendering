@@ -458,6 +458,14 @@ PrefabInstance:
       propertyPath: lightTwo
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: stableFluid
+      value: 
+      objectReference: {fileID: 7200000, guid: 7cfe57688ba63904cb2da66f179148c1, type: 3}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: volumeRender
+      value: 
+      objectReference: {fileID: 4800000, guid: 12122892c581e6340830719f2283245b, type: 3}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_RootOrder
       value: 0

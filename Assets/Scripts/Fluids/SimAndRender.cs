@@ -25,7 +25,7 @@ public class SimAndRender: MonoBehaviour
     private Camera cam;
 
     [SerializeField] private Material m;
-    [SerializeField] [Range(2, 20)] private int gizmoMeshRes = 6;
+    [SerializeField] [Range(2, 20)] private int gizmoMeshRes = 11;
     private Mesh gizmoMesh;
     private int gizmoScale = 128;
 
@@ -37,7 +37,7 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] private GameObject lightOne;
     private ComputeBuffer simulationGrid0ne; 
     private ComputeBuffer simulationGridTwo;
-    private int gridSize = 128;
+    private int gridSize = 256;
     
     // things to do with rendering
     [SerializeField] private Shader volumeRender;
@@ -47,9 +47,8 @@ public class SimAndRender: MonoBehaviour
     private Vector3 lightPosition;
     [Header("VolumeRendering Input")]
     [SerializeField] Color lightColor;
-    [SerializeField] float maxRange;
-    [SerializeField] float minRange;
-    [SerializeField] int steps;
+    [SerializeField] [Range(500, 3000)] int maxRange;
+    [SerializeField] [Range(10, 2000)] int steps;
     [SerializeField] int lightStepsPer100Distance;
     [SerializeField] float sigma_a;
     [SerializeField] float sigma_b;
@@ -57,6 +56,8 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] float asymmetryphasefactor;
     [SerializeField] float densitytransmittancestoplimit;
     [SerializeField] float lighttransmittancestoplimit;
+
+    private float gridToWorld;
     
     private void Start()
     {
@@ -64,6 +65,8 @@ public class SimAndRender: MonoBehaviour
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
         InitGizmosMesh();
         InitBuffers();
+        gridToWorld = gizmoScale * (gizmoMeshRes - 1) / (float) gridSize;
+        cam.depthTextureMode = DepthTextureMode.Depth;
     }
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -76,7 +79,6 @@ public class SimAndRender: MonoBehaviour
         
         // handle simulation
         stableFluid.SetBuffer(0, "GridOne", simulationGrid0ne);
-        stableFluid.SetBuffer(0, "GridTwo", simulationGridTwo);
         stableFluid.SetInt("gridSize", gridSize);
 
         int threadGroupSim = gridSize / 4;
@@ -84,18 +86,18 @@ public class SimAndRender: MonoBehaviour
 
         // handle rendering
         UpdateMaterial();
-        volumeMaterial.SetBuffer("densityBuffer", simulationGrid0ne);
+        volumeMaterial.SetBuffer("densityBufferOne", simulationGrid0ne);
         volumeMaterial.SetInt("gridSize", gridSize);
+        volumeMaterial.SetFloat("gridToWorld", gridToWorld);
         
         volumeMaterial.SetColor("lightColor", lightColor);
-        volumeMaterial.SetFloat("maxRange", maxRange);
-        volumeMaterial.SetFloat("minRange", minRange);
+        volumeMaterial.SetInt("maxRange", maxRange);
         volumeMaterial.SetInt("steps", steps);
         volumeMaterial.SetInt("lightStepsPer100Distance", lightStepsPer100Distance);
         volumeMaterial.SetFloat("sigma_a", sigma_a);
         volumeMaterial.SetFloat("sigma_b", sigma_b);
         volumeMaterial.SetFloat("asymmetryphasefactor", asymmetryphasefactor);
-        volumeMaterial.SetFloat("densityStopThreshold", densityStopThreshold);
+        volumeMaterial.SetFloat("densityThreshold", densityStopThreshold);
         volumeMaterial.SetFloat("densitytransmittancestoplimit", densitytransmittancestoplimit);
         volumeMaterial.SetFloat("lighttransmittancestoplimit", lighttransmittancestoplimit);
         

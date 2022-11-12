@@ -28,19 +28,29 @@ Shader "Custom/VolumeRenderer"
                 float3 viewVector: TEXCOORD1;
             };
 
+            v2f vert(appdata v)
+            {
+                v2f output;
+                output.pos = UnityObjectToClipPos(v.vertex);
+                output.uv = v.uv;
+                
+                float3 viewVector = mul(unity_CameraInvProjection, float4(v.uv * 2 - 1, 0, -1));
+                output.viewVector = mul(unity_CameraToWorld, float4(viewVector,0));
+                return output;
+            }
+            
             sampler2D _MainTex;
             sampler2D _CameraDepthTexture;
             
             // basic settings
             StructuredBuffer<float> densityBufferOne;
             int gridSize;
-            float worldToGrid;
+            float gridToWorld;
             
             // light settings
             float3 lightPosition;
             float4 lightColor;
-            float maxRange;
-            float minRange;
+            int maxRange;
             int steps;
             int lightStepsPer100Distance;
             float sigma_a;
@@ -52,7 +62,7 @@ Shader "Custom/VolumeRenderer"
                     
             int CoordToIndex(int x, int y, int z)
             {
-                return 128 * 128 * x + 128 * y + z;
+                return gridSize * gridSize * x + gridSize * y + z;
             }
 
             // Henyey-Greenstein
@@ -73,6 +83,21 @@ Shader "Custom/VolumeRenderer"
             
             float SampleGrid(float3 pos)
             {
+                pos = pos / gridToWorld;
+                int x = round(pos.x );
+                int y = round(pos.y );
+                int z = round(pos.z );
+
+                if (x < 0 || x >= gridSize || y < 0 || y >= gridSize || z < 0 || z >= gridSize)
+                {
+                    return 0;
+                }
+
+                float d = densityBufferOne[CoordToIndex(x, y, z)];
+                if (d > densityThreshold)
+                {
+                    return d;
+                }
                 return 0;
             }
 
@@ -83,46 +108,47 @@ Shader "Custom/VolumeRenderer"
             
             float RayMarchLight(float3 pos)
             {
-                float l = length(lightPosition - pos);
+                float3 dirToLight = lightPosition - pos;
+                float l = length(dirToLight);
+                
                 int steps = (int) round(lightStepsPer100Distance * l / 100);
                 float stepSize = l / steps;
-                return 0;
+
+                for (int s = 0; s < steps; s++)
+                {
+                    pos += dirToLight * stepSize ;
+                }
+                
+                
+                return 0.5;
             }
             
-            v2f vert(appdata v)
-            {
-                v2f output;
-                output.pos = UnityObjectToClipPos(v.vertex);
-                output.uv = v.uv;
-                
-                float3 viewVector = mul(unity_CameraInvProjection, float4(v.uv * 2 - 1, 0, -1));
-                output.viewVector = mul(unity_CameraToWorld, float4(viewVector,0));
-                return output;
-            }
 
             float4 frag(v2f id) : SV_Target
             {
                 // get ray
-                float3 rayPos;
-                float3 rayDir = normalize(id.viewVector);
+                float3 entry = _WorldSpaceCameraPos;
+                float viewLength = length(id.viewVector);
+                float3 rayDir = id.viewVector / viewLength;
 
                 // sample depth
                 float nonLinearDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, id.uv);
                 float l = length(id.viewVector);
                 // convert to linear depth and scale by view length
                 float depth = LinearEyeDepth(nonLinearDepth) * l;
+                
                 // stop ray at depth
-                maxRange = min(depth, maxRange); 
                 
-                float stepSize = (maxRange - minRange) / steps;
-                float distanceTraveled = minRange;
+                float range = min(depth, maxRange);
+                float stepSize = maxRange / (float) steps;
                 
+                float distanceTraveled = 0;
                 float transmittence = 1;
                 float lighting = 0;
-
-                while (distanceTraveled < maxRange)
+                
+                while (distanceTraveled < range)
                 {
-                    rayPos = rayDir * distanceTraveled;
+                    float3 rayPos = entry + rayDir * distanceTraveled;
                     float density = SampleGrid(rayPos);
 
                     if (density > densityThreshold)
@@ -133,9 +159,10 @@ Shader "Custom/VolumeRenderer"
                         float lightTransmittance = RayMarchLight(rayPos);
                         // merge
                         lighting +=
-                            density * stepSize * transmittence * lightTransmittance * phaseValue;
+                            // density * stepSize * transmittence * lightTransmittance * phaseValue;
+                            density * stepSize * transmittence;
                         // update transmittance
-                        transmittence *= beer(density * stepSize * sigma_a);
+                        transmittence *= exp(-density * stepSize * sigma_a);
 
                         // exit early when opaque
                         if (transmittence < densityTransmittanceStopLimit)
@@ -149,6 +176,7 @@ Shader "Custom/VolumeRenderer"
                 float3 background = tex2D(_MainTex, id.uv);
                 float3 cloudColor = lighting * lightColor;
                 float3 color = background * transmittence + cloudColor;
+
                 return float4(color, 0);
             }
 

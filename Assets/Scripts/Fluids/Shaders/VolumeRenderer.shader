@@ -48,7 +48,10 @@ Shader "Custom/VolumeRenderer"
             float gridToWorld;
             
             // light settings
-            float3 lightPosition;
+            float lightX;
+            float lightY;
+            float lightZ;
+            
             float4 lightColor;
             int maxRange;
             int steps;
@@ -108,19 +111,19 @@ Shader "Custom/VolumeRenderer"
             
             float RayMarchLight(float3 pos)
             {
-                float3 dirToLight = lightPosition - pos;
-                float l = length(dirToLight);
+                float3 dirToLight = _WorldSpaceLightPos0;
                 
-                int steps = (int) round(lightStepsPer100Distance * l / 100);
-                float stepSize = l / steps;
+                float stepSize = 2;
+                float traveled = 0;
+                float totalDensity = 0;
 
-                for (int s = 0; s < steps; s++)
+                for (int i = 0; i < 100; i++)
                 {
-                    pos += dirToLight * stepSize ;
+                    float3 pt = pos + dirToLight * traveled;
+                    totalDensity += SampleGrid(pt) * stepSize * sigma_b;
+                    traveled += stepSize;
                 }
-                
-                
-                return 0.5;
+                return exp(-totalDensity * sigma_b);
             }
             
 
@@ -136,9 +139,9 @@ Shader "Custom/VolumeRenderer"
                 float l = length(id.viewVector);
                 // convert to linear depth and scale by view length
                 float depth = LinearEyeDepth(nonLinearDepth) * l;
+                float phaseValue = phase(dot(rayDir, _WorldSpaceLightPos0));
                 
                 // stop ray at depth
-                
                 float range = min(depth, maxRange);
                 float stepSize = maxRange / (float) steps;
                 
@@ -154,13 +157,12 @@ Shader "Custom/VolumeRenderer"
                     if (density > densityThreshold)
                     {
                         // phase value depends of rayPos because of point light
-                        float phaseValue = phase(dot(rayDir, lightPosition - rayPos));
                         // marching light
                         float lightTransmittance = RayMarchLight(rayPos);
                         // merge
                         lighting +=
-                            // density * stepSize * transmittence * lightTransmittance * phaseValue;
-                            density * stepSize * transmittence;
+                            density * stepSize * transmittence * lightTransmittance * phaseValue;
+                            // density * stepSize * transmittence;
                         // update transmittance
                         transmittence *= exp(-density * stepSize * sigma_a);
 

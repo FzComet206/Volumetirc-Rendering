@@ -4,6 +4,7 @@
 RWStructuredBuffer<float> GridOne;
 
 int gridSize;
+float offset;
 
 int CoordToIndex(uint3 id)
 {
@@ -29,7 +30,7 @@ float Fbm(float3 x)
 [numthreads(4,4,4)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    float3 pos = float3((float) id.x, (float) id.y, (float) id.z);
+    float3 pos = float3((float) id.x + offset, (float) id.y, (float) id.z);
     float n = Fbm(pos / 100);
     n = max(0, n);
     GridOne[CoordToIndex(id)] = n;

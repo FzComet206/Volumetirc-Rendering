@@ -56,17 +56,16 @@ MonoBehaviour:
   lightOne: {fileID: 0}
   volumeRender: {fileID: 4800000, guid: 12122892c581e6340830719f2283245b, type: 3}
   volumeMaterial: {fileID: 0}
-  lightColor: {r: 0, g: 0, b: 0, a: 0}
-  maxRange: 1000
-  minRange: 0
-  steps: 50
-  lightStepsPer100Distance: 5
+  lightColor: {r: 1, g: 0.81880796, b: 0.5613208, a: 0}
+  maxRange: 1800
+  steps: 200
+  lightStepsPer100Distance: 1
   sigma_a: 0.1
   sigma_b: 0.1
-  densityStopThreshold: 0.01
+  densityStopThreshold: 0.5
   asymmetryphasefactor: 0
-  densitytransmittancestoplimit: 0.01
-  lighttransmittancestoplimit: 0.01
+  densitytransmittancestoplimit: 0.02
+  lighttransmittancestoplimit: 0.02
 --- !u!114 &1698029598996524483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,7 +161,7 @@ MonoBehaviour:
       m_Flags: 0
     m_Flags: 0
   rb: {fileID: 1698029598996524480}
-  cruiseSpeed: 10000
+  cruiseSpeed: 20000
   rotateSpeed: 10
 --- !u!54 &1698029598996524480
 Rigidbody:

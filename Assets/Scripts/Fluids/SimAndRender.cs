@@ -48,7 +48,7 @@ public class SimAndRender: MonoBehaviour
     [Header("VolumeRendering Input")]
     [SerializeField] Color lightColor;
     [SerializeField] [Range(500, 3000)] int maxRange;
-    [SerializeField] [Range(10, 2000)] int steps;
+    [SerializeField] [Range(10, 300)] int steps;
     [SerializeField] int lightStepsPer100Distance;
     [SerializeField] float sigma_a;
     [SerializeField] float sigma_b;
@@ -58,6 +58,7 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] float lighttransmittancestoplimit;
 
     private float gridToWorld;
+    private float offset = 0;
     
     private void Start()
     {
@@ -71,6 +72,7 @@ public class SimAndRender: MonoBehaviour
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
+        offset += Time.fixedDeltaTime * 5;
         if (sceneUI.activeSelf)
         {
             Graphics.Blit(src, dest);
@@ -80,26 +82,32 @@ public class SimAndRender: MonoBehaviour
         // handle simulation
         stableFluid.SetBuffer(0, "GridOne", simulationGrid0ne);
         stableFluid.SetInt("gridSize", gridSize);
+        stableFluid.SetFloat("offset", offset);
 
         int threadGroupSim = gridSize / 4;
         stableFluid.Dispatch(0, threadGroupSim, threadGroupSim, threadGroupSim);
 
         // handle rendering
+        Vector3 lightPos = lightOne.transform.position;
+        
         UpdateMaterial();
+        volumeMaterial.SetFloat("lightX", lightPos.x);
+        volumeMaterial.SetFloat("lightY", lightPos.y);
+        volumeMaterial.SetFloat("lightZ", lightPos.z);
+        
         volumeMaterial.SetBuffer("densityBufferOne", simulationGrid0ne);
         volumeMaterial.SetInt("gridSize", gridSize);
         volumeMaterial.SetFloat("gridToWorld", gridToWorld);
-        
         volumeMaterial.SetColor("lightColor", lightColor);
         volumeMaterial.SetInt("maxRange", maxRange);
         volumeMaterial.SetInt("steps", steps);
         volumeMaterial.SetInt("lightStepsPer100Distance", lightStepsPer100Distance);
         volumeMaterial.SetFloat("sigma_a", sigma_a);
         volumeMaterial.SetFloat("sigma_b", sigma_b);
-        volumeMaterial.SetFloat("asymmetryphasefactor", asymmetryphasefactor);
+        volumeMaterial.SetFloat("asymmetryPhaseFactor", asymmetryphasefactor);
         volumeMaterial.SetFloat("densityThreshold", densityStopThreshold);
-        volumeMaterial.SetFloat("densitytransmittancestoplimit", densitytransmittancestoplimit);
-        volumeMaterial.SetFloat("lighttransmittancestoplimit", lighttransmittancestoplimit);
+        volumeMaterial.SetFloat("densityTransmittanceStopLimit", densitytransmittancestoplimit);
+        volumeMaterial.SetFloat("lightTransmittanceStopLimit", lighttransmittancestoplimit);
         
         Graphics.Blit(src, dest, volumeMaterial);
     }

@@ -87,9 +87,9 @@ Shader "Custom/VolumeRenderer"
             float SampleGrid(float3 pos)
             {
                 pos = pos / gridToWorld;
-                int x = round(pos.x );
-                int y = round(pos.y );
-                int z = round(pos.z );
+                int x = floor(pos.x);
+                int y = floor(pos.y);
+                int z = floor(pos.z);
 
                 if (x < 0 || x >= gridSize || y < 0 || y >= gridSize || z < 0 || z >= gridSize)
                 {
@@ -106,21 +106,59 @@ Shader "Custom/VolumeRenderer"
 
             float SampleGridTrilinear(float3 pos)
             {
-                return 0;
+                float gx, gy, gz, tx, ty, tz;
+                int gxi, gyi, gzi;
+                float c000, c100, c010, c110, c001, c101, c011, c111;
+                
+                gx = pos.x / gridToWorld;
+                gy = pos.y / gridToWorld;
+                gz = pos.z / gridToWorld;
+                
+                gxi = round(gx);
+                gyi = round(gy);
+                gzi = round(gz);
+
+                if (gxi < 1 || gxi >= gridSize-1 || gyi < 1 || gyi >= gridSize-1 || gzi < 1 || gzi >= gridSize-1)
+                {
+                    return 0;
+                }
+                
+                tx = gx - gxi;
+                ty = gy - gyi;
+                tz = gz - gzi;
+
+                c000 = densityBufferOne[CoordToIndex(gxi, gyi, gzi)];
+                c100 = densityBufferOne[CoordToIndex(gxi + 1, gyi, gzi)];
+                c010 = densityBufferOne[CoordToIndex(gxi, gyi + 1, gzi)];
+                c110 = densityBufferOne[CoordToIndex(gxi + 1, gyi + 1, gzi)];
+                c001 = densityBufferOne[CoordToIndex(gxi, gyi, gzi + 1)];
+                c101 = densityBufferOne[CoordToIndex(gxi + 1, gyi, gzi + 1)];
+                c011 = densityBufferOne[CoordToIndex(gxi, gyi + 1, gzi + 1)];
+                c111 = densityBufferOne[CoordToIndex(gxi + 1, gyi + 1, gzi + 1)];
+
+                return
+                    (1 - tx) * (1 - ty) * (1 - tz) * c000 +
+                        tx * (1 - ty) * (1 - tz) * c100 +
+                            (1 - tx) * ty * (1 - tz) * c010 +
+                                tx * ty * (1 - tz) * c110 +
+                                    (1 - tx) * (1 - ty) * tz * c001 +
+                                        tx * (1 - ty) * tz * c101 +
+                                            (1 - tx) * ty * tz * c011 +
+                                                tx * ty * tz * c111;
             }
             
             float RayMarchLight(float3 pos)
             {
                 float3 dirToLight = _WorldSpaceLightPos0;
                 
-                float stepSize = 2;
+                float stepSize = 10;
                 float traveled = 0;
                 float totalDensity = 0;
 
-                for (int i = 0; i < 100; i++)
+                for (int i = 0; i < 50; i++)
                 {
                     float3 pt = pos + dirToLight * traveled;
-                    totalDensity += SampleGrid(pt) * stepSize * sigma_b;
+                    totalDensity += SampleGridTrilinear(pt) * stepSize * sigma_b;
                     traveled += stepSize;
                 }
                 return exp(-totalDensity * sigma_b);
@@ -152,7 +190,7 @@ Shader "Custom/VolumeRenderer"
                 while (distanceTraveled < range)
                 {
                     float3 rayPos = entry + rayDir * distanceTraveled;
-                    float density = SampleGrid(rayPos);
+                    float density = SampleGridTrilinear(rayPos);
 
                     if (density > densityThreshold)
                     {
@@ -169,6 +207,7 @@ Shader "Custom/VolumeRenderer"
                         // exit early when opaque
                         if (transmittence < densityTransmittanceStopLimit)
                         {
+                            transmittence = 0;
                             break;
                         }
                     }

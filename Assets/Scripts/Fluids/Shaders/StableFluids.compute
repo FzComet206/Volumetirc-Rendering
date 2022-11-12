@@ -20,7 +20,7 @@ float Fbm(float3 x)
     for (int i = 0; i < 3; i++) {
         
         value += amplitude * snoise(frequency * x);
-        amplitude *= 0.12;
+        amplitude *= 0.15;
         frequency *= 5;
     }
     

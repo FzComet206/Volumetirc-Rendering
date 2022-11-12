@@ -452,15 +452,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: steps
-      value: 200
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: sigma_a
-      value: 0.06
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: sigma_b
-      value: 0.25
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: lightOne
@@ -468,15 +468,19 @@ PrefabInstance:
       objectReference: {fileID: 1501294428}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: lightColor.b
-      value: 0.14509805
+      value: 0.14509803
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: lightColor.g
-      value: 0.72156864
+      value: 0.7495767
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
-      propertyPath: lightColor.r
-      value: 1
+      propertyPath: densityStopThreshold
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: densitytransmittancestoplimit
+      value: 0.1
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_RootOrder

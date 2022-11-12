@@ -48,7 +48,7 @@ public class SimAndRender: MonoBehaviour
     [Header("VolumeRendering Input")]
     [SerializeField] Color lightColor;
     [SerializeField] [Range(500, 3000)] int maxRange;
-    [SerializeField] [Range(10, 300)] int steps;
+    [SerializeField] [Range(10, 500)] int steps;
     [SerializeField] int lightStepsPer100Distance;
     [SerializeField] float sigma_a;
     [SerializeField] float sigma_b;

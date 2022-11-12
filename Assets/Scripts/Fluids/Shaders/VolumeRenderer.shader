@@ -63,6 +63,10 @@ Shader "Custom/VolumeRenderer"
             float densityTransmittanceStopLimit;
             float lightTransmittanceStopLimit;
                     
+            float remap(float v, float minOld, float maxOld, float minNew, float maxNew) {
+                return minNew + (v-minOld) * (maxNew - minNew) / (maxOld-minOld);
+            }
+            
             int CoordToIndex(int x, int y, int z)
             {
                 return gridSize * gridSize * x + gridSize * y + z;
@@ -149,13 +153,15 @@ Shader "Custom/VolumeRenderer"
             
             float RayMarchLight(float3 pos)
             {
-                float3 dirToLight = _WorldSpaceLightPos0;
+                float3 dirToLight = normalize(_WorldSpaceLightPos0);
+
+                float stepSize = 5;
                 
-                float stepSize = 10;
                 float traveled = 0;
                 float totalDensity = 0;
 
-                for (int i = 0; i < 50; i++)
+                float maxRange = 500;
+                while (traveled < maxRange)
                 {
                     float3 pt = pos + dirToLight * traveled;
                     totalDensity += SampleGridTrilinear(pt) * stepSize * sigma_b;
@@ -181,14 +187,18 @@ Shader "Custom/VolumeRenderer"
                 
                 // stop ray at depth
                 float range = min(depth, maxRange);
-                float stepSize = maxRange / (float) steps;
+
+                float minStep = 5;
+                float stepSize;
+                float maxStep = 15;
                 
-                float distanceTraveled = 0;
+                float distanceTraveled = densityBufferOne[id.uv.x * id.uv.y] * 4;
                 float transmittence = 1;
                 float lighting = 0;
                 
                 while (distanceTraveled < range)
                 {
+                    stepSize = remap(distanceTraveled, 0, range, minStep, maxStep);
                     float3 rayPos = entry + rayDir * distanceTraveled;
                     float density = SampleGridTrilinear(rayPos);
 

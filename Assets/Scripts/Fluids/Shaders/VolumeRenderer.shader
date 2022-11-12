@@ -45,9 +45,10 @@ Shader "Custom/VolumeRenderer"
             int lightStepsPer100Distance;
             float sigma_a;
             float sigma_b;
-            float opacityStopLimit;
             float asymmetryPhaseFactor;
             float densityThreshold;
+            float densityTransmittanceStopLimit;
+            float lightTransmittanceStopLimit;
                     
             int CoordToIndex(int x, int y, int z)
             {
@@ -102,17 +103,19 @@ Shader "Custom/VolumeRenderer"
             float4 frag(v2f id) : SV_Target
             {
                 // get ray
-                float3 rayPos = _WorldSpaceCameraPos;
+                float3 rayPos;
                 float3 rayDir = normalize(id.viewVector);
 
                 // sample depth
                 float nonLinearDepth = SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, id.uv);
-                float depth = LinearEyeDepth(nonLinearDepth);
-
-
-                float stepSize = maxRange / steps;
-                float distanceTraveled = stepSize;
-
+                float l = length(id.viewVector);
+                // convert to linear depth and scale by view length
+                float depth = LinearEyeDepth(nonLinearDepth) * l;
+                // stop ray at depth
+                maxRange = min(depth, maxRange); 
+                
+                float stepSize = (maxRange - minRange) / steps;
+                float distanceTraveled = minRange;
                 
                 float transmittence = 1;
                 float lighting = 0;
@@ -124,17 +127,29 @@ Shader "Custom/VolumeRenderer"
 
                     if (density > densityThreshold)
                     {
-                        
+                        // phase value depends of rayPos because of point light
+                        float phaseValue = phase(dot(rayDir, lightPosition - rayPos));
+                        // marching light
+                        float lightTransmittance = RayMarchLight(rayPos);
+                        // merge
+                        lighting +=
+                            density * stepSize * transmittence * lightTransmittance * phaseValue;
+                        // update transmittance
+                        transmittence *= beer(density * stepSize * sigma_a);
+
+                        // exit early when opaque
+                        if (transmittence < densityTransmittanceStopLimit)
+                        {
+                            break;
+                        }
                     }
+                    distanceTraveled += stepSize;
                 }
 
-
-
-
-
-                
-                float v = densityBufferOne[CoordToIndex(id.uv.x * 2560, id.uv.y * 1440, 0)];
-                return float4(v,v,v,0);
+                float3 background = tex2D(_MainTex, id.uv);
+                float3 cloudColor = lighting * lightColor;
+                float3 color = background * transmittence + cloudColor;
+                return float4(color, 0);
             }
 
             ENDCG

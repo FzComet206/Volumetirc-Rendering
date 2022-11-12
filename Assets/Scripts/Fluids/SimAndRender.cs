@@ -27,7 +27,7 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] private Material m;
     [SerializeField] [Range(2, 20)] private int gizmoMeshRes = 6;
     private Mesh gizmoMesh;
-    private int gizmoScale = 100;
+    private int gizmoScale = 128;
 
     public List<Vector3[]> glWireVertices;
     public List<int[]> glWireTriangles;
@@ -37,7 +37,7 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] private GameObject lightOne;
     private ComputeBuffer simulationGrid0ne; 
     private ComputeBuffer simulationGridTwo;
-    private int gridSize = 512;
+    private int gridSize = 128;
     
     // things to do with rendering
     [SerializeField] private Shader volumeRender;
@@ -53,7 +53,11 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] int lightStepsPer100Distance;
     [SerializeField] float sigma_a;
     [SerializeField] float sigma_b;
-    [SerializeField] float opacityStopLimit;
+    [SerializeField] float densityStopThreshold;
+    [SerializeField] float asymmetryphasefactor;
+    [SerializeField] float densitytransmittancestoplimit;
+    [SerializeField] float lighttransmittancestoplimit;
+    
     private void Start()
     {
         cam = GetComponent<Camera>();
@@ -90,7 +94,10 @@ public class SimAndRender: MonoBehaviour
         volumeMaterial.SetInt("lightStepsPer100Distance", lightStepsPer100Distance);
         volumeMaterial.SetFloat("sigma_a", sigma_a);
         volumeMaterial.SetFloat("sigma_b", sigma_b);
-        volumeMaterial.SetFloat("opacityStopLimit", opacityStopLimit);
+        volumeMaterial.SetFloat("asymmetryphasefactor", asymmetryphasefactor);
+        volumeMaterial.SetFloat("densityStopThreshold", densityStopThreshold);
+        volumeMaterial.SetFloat("densitytransmittancestoplimit", densitytransmittancestoplimit);
+        volumeMaterial.SetFloat("lighttransmittancestoplimit", lighttransmittancestoplimit);
         
         Graphics.Blit(src, dest, volumeMaterial);
     }

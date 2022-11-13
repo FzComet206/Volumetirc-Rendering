@@ -21,7 +21,7 @@ public class Controls : MonoBehaviour
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (sceneUI.activeSelf)
         {
@@ -32,7 +32,7 @@ public class Controls : MonoBehaviour
         Vector3 forward = c.z * transform.forward;
         Vector3 right = c.x * transform.right;
         Vector3 up = c.y * transform.up;
-        Vector3 vel = (forward + up + right).normalized * (cruiseSpeed * Time.fixedDeltaTime);
+        Vector3 vel = (forward + up + right).normalized * (cruiseSpeed * Time.deltaTime);
         rb.velocity = vel;
 
         // rotation

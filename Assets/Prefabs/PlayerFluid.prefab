@@ -58,14 +58,11 @@ MonoBehaviour:
   volumeMaterial: {fileID: 0}
   lightColor: {r: 1, g: 0.7495767, b: 0.14509803, a: 0}
   maxRange: 1000
-  steps: 300
-  lightStepsPer100Distance: 1
   sigma_a: 0.06
-  sigma_b: 0.2
+  sigma_b: 0.15
   densityStopThreshold: 0.4
   asymmetryphasefactor: -0.2
   densitytransmittancestoplimit: 0.1
-  lighttransmittancestoplimit: 0.02
 --- !u!114 &1698029598996524483
 MonoBehaviour:
   m_ObjectHideFlags: 0

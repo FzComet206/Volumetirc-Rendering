@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
+using Random = UnityEngine.Random;
 
 public class RealtimeInput
 {
@@ -25,7 +27,7 @@ public class SimAndRender: MonoBehaviour
     private Camera cam;
 
     [SerializeField] private Material m;
-    [SerializeField] [Range(2, 20)] private int gizmoMeshRes = 11;
+    [SerializeField] [Range(2, 20)] private int gizmoMeshRes = 6;
     private Mesh gizmoMesh;
     private int gizmoScale = 128;
 
@@ -34,13 +36,14 @@ public class SimAndRender: MonoBehaviour
     
     // things to do with simulation
     [SerializeField] private ComputeShader stableFluid;
-    [SerializeField] private GameObject lightOne;
-    private ComputeBuffer simulationGrid0ne; 
-    private ComputeBuffer simulationGridTwo;
+    // [SerializeField] private GameObject lightOne;
+    private RenderTexture renderTexture;
     private int gridSize = 256;
+
     
     // things to do with rendering
     [SerializeField] private Shader volumeRender;
+    [SerializeField] public Transform lightOne;
     [HideInInspector] public Material volumeMaterial;
 
     // rendering input
@@ -48,14 +51,11 @@ public class SimAndRender: MonoBehaviour
     [Header("VolumeRendering Input")]
     [SerializeField] Color lightColor;
     [SerializeField] [Range(500, 3000)] int maxRange;
-    [SerializeField] [Range(10, 500)] int steps;
-    [SerializeField] int lightStepsPer100Distance;
     [SerializeField] float sigma_a;
     [SerializeField] float sigma_b;
     [SerializeField] float densityStopThreshold;
     [SerializeField] float asymmetryphasefactor;
     [SerializeField] float densitytransmittancestoplimit;
-    [SerializeField] float lighttransmittancestoplimit;
 
     private float gridToWorld;
     private float offset = 0;
@@ -70,9 +70,14 @@ public class SimAndRender: MonoBehaviour
         cam.depthTextureMode = DepthTextureMode.Depth;
     }
 
+    private void Update()
+    {
+        lightPosition = lightOne.position;
+    }
+
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        offset += Time.fixedDeltaTime * 5;
+        offset += Time.deltaTime * 10;
         if (sceneUI.activeSelf)
         {
             Graphics.Blit(src, dest);
@@ -80,7 +85,7 @@ public class SimAndRender: MonoBehaviour
         }
         
         // handle simulation
-        stableFluid.SetBuffer(0, "GridOne", simulationGrid0ne);
+        stableFluid.SetTexture(0, "Grid", renderTexture);
         stableFluid.SetInt("gridSize", gridSize);
         stableFluid.SetFloat("offset", offset);
 
@@ -88,26 +93,24 @@ public class SimAndRender: MonoBehaviour
         stableFluid.Dispatch(0, threadGroupSim, threadGroupSim, threadGroupSim);
 
         // handle rendering
-        Vector3 lightPos = lightOne.transform.position;
         
         UpdateMaterial();
-        volumeMaterial.SetFloat("lightX", lightPos.x);
-        volumeMaterial.SetFloat("lightY", lightPos.y);
-        volumeMaterial.SetFloat("lightZ", lightPos.z);
+
+        volumeMaterial.SetFloat("lightX", lightPosition.x);
+        volumeMaterial.SetFloat("lightY", lightPosition.y);
+        volumeMaterial.SetFloat("lightZ", lightPosition.z);
         
-        volumeMaterial.SetBuffer("densityBufferOne", simulationGrid0ne);
         volumeMaterial.SetInt("gridSize", gridSize);
         volumeMaterial.SetFloat("gridToWorld", gridToWorld);
         volumeMaterial.SetColor("lightColor", lightColor);
         volumeMaterial.SetInt("maxRange", maxRange);
-        volumeMaterial.SetInt("steps", steps);
-        volumeMaterial.SetInt("lightStepsPer100Distance", lightStepsPer100Distance);
         volumeMaterial.SetFloat("sigma_a", sigma_a);
         volumeMaterial.SetFloat("sigma_b", sigma_b);
         volumeMaterial.SetFloat("asymmetryPhaseFactor", asymmetryphasefactor);
         volumeMaterial.SetFloat("densityThreshold", densityStopThreshold);
         volumeMaterial.SetFloat("densityTransmittanceStopLimit", densitytransmittancestoplimit);
-        volumeMaterial.SetFloat("lightTransmittanceStopLimit", lighttransmittancestoplimit);
+        
+        volumeMaterial.SetTexture("Grid", renderTexture);
         
         Graphics.Blit(src, dest, volumeMaterial);
     }
@@ -122,14 +125,14 @@ public class SimAndRender: MonoBehaviour
 
     private void InitBuffers()
     {
-        simulationGrid0ne = new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float));
-        simulationGridTwo = new ComputeBuffer(gridSize * gridSize * gridSize, sizeof(float));
-    }
-
-    private void OnDestroy()
-    {
-        simulationGrid0ne.Dispose();
-        simulationGridTwo.Dispose();
+        renderTexture = new RenderTexture(gridSize, gridSize, 0);
+        renderTexture.dimension = TextureDimension.Tex3D;
+        renderTexture.filterMode = FilterMode.Trilinear;
+        renderTexture.volumeDepth = gridSize;
+        renderTexture.format = RenderTextureFormat.R16;
+        renderTexture.wrapMode = TextureWrapMode.Mirror;
+        renderTexture.enableRandomWrite = true;
+        renderTexture.Create();
     }
 
     private void InitGizmosMesh()

@@ -44,6 +44,9 @@ Shader "Custom/VolumeRenderer"
             
             // basic settings
             StructuredBuffer<float> densityBufferOne;
+            Texture3D<float4> Grid;
+            SamplerState samplerGrid;
+            
             int gridSize;
             float gridToWorld;
             
@@ -54,14 +57,11 @@ Shader "Custom/VolumeRenderer"
             
             float4 lightColor;
             int maxRange;
-            int steps;
-            int lightStepsPer100Distance;
             float sigma_a;
             float sigma_b;
             float asymmetryPhaseFactor;
             float densityThreshold;
             float densityTransmittanceStopLimit;
-            float lightTransmittanceStopLimit;
                     
             float remap(float v, float minOld, float maxOld, float minNew, float maxNew) {
                 return minNew + (v-minOld) * (maxNew - minNew) / (maxOld-minOld);
@@ -83,11 +83,6 @@ Shader "Custom/VolumeRenderer"
                 return hg(a, asymmetryPhaseFactor);
             }
 
-            float beer(float d) {
-                float beer = exp(-d);
-                return beer;
-            }
-            
             float SampleGrid(float3 pos)
             {
                 pos = pos / gridToWorld;
@@ -153,19 +148,23 @@ Shader "Custom/VolumeRenderer"
             
             float RayMarchLight(float3 pos)
             {
-                float3 dirToLight = normalize(_WorldSpaceLightPos0);
+                // float3 dirToLight = normalize(_WorldSpaceLightPos0);
+                float3 lightVector = float3(lightX, lightY, lightZ) - pos;
+                float3 dirToLight = normalize(lightVector);
+                float3 lenToLight = length(lightVector);
 
-                float stepSize = 5;
+                float stepSize = 1;
                 
                 float traveled = 0;
                 float totalDensity = 0;
 
-                float maxRange = 500;
+                float maxRange = min(300, lenToLight);
                 while (traveled < maxRange)
                 {
                     float3 pt = pos + dirToLight * traveled;
-                    totalDensity += SampleGridTrilinear(pt) * stepSize * sigma_b;
+                    totalDensity += Grid.SampleLevel(samplerGrid, pt / gridSize / gridToWorld, 0).x;
                     traveled += stepSize;
+                    stepSize += 0.1;
                 }
                 return exp(-totalDensity * sigma_b);
             }
@@ -183,25 +182,30 @@ Shader "Custom/VolumeRenderer"
                 float l = length(id.viewVector);
                 // convert to linear depth and scale by view length
                 float depth = LinearEyeDepth(nonLinearDepth) * l;
-                float phaseValue = phase(dot(rayDir, _WorldSpaceLightPos0));
+                // float phaseValue = phase(dot(rayDir, _WorldSpaceLightPos0));
+                float phaseValue;
                 
                 // stop ray at depth
                 float range = min(depth, maxRange);
 
-                float minStep = 5;
-                float stepSize;
-                float maxStep = 15;
+                float stepSize = 10;
                 
-                float distanceTraveled = densityBufferOne[id.uv.x * id.uv.y] * 4;
+                float distanceTraveled = 0;
                 float transmittence = 1;
                 float lighting = 0;
+
+                float3 rayPos;
+                float scale = gridSize * gridToWorld;
                 
                 while (distanceTraveled < range)
                 {
-                    stepSize = remap(distanceTraveled, 0, range, minStep, maxStep);
-                    float3 rayPos = entry + rayDir * distanceTraveled;
-                    float density = SampleGridTrilinear(rayPos);
+                    
+                    rayPos = entry + rayDir * distanceTraveled;
 
+                    float3 samplePos = rayPos / scale;
+                    float density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
+                    phaseValue = phase(dot(rayDir, float3(lightX, lightY, lightZ) - rayPos));
+                    
                     if (density > densityThreshold)
                     {
                         // phase value depends of rayPos because of point light
@@ -225,7 +229,7 @@ Shader "Custom/VolumeRenderer"
                 }
 
                 float3 background = tex2D(_MainTex, id.uv);
-                float3 cloudColor = lighting * lightColor;
+                float3 cloudColor = lighting * lightColor * 4;
                 float3 color = background * transmittence + cloudColor;
 
                 return float4(color, 0);

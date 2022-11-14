@@ -77,7 +77,7 @@ public class SimAndRender: MonoBehaviour
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        offset += Time.deltaTime * 10;
+        offset += Time.deltaTime * 10f;
         if (sceneUI.activeSelf)
         {
             Graphics.Blit(src, dest);
@@ -109,7 +109,7 @@ public class SimAndRender: MonoBehaviour
         volumeMaterial.SetFloat("asymmetryPhaseFactor", asymmetryphasefactor);
         volumeMaterial.SetFloat("densityThreshold", densityStopThreshold);
         volumeMaterial.SetFloat("densityTransmittanceStopLimit", densitytransmittancestoplimit);
-        
+
         volumeMaterial.SetTexture("Grid", renderTexture);
         
         Graphics.Blit(src, dest, volumeMaterial);

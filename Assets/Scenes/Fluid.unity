@@ -192,40 +192,24 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: forward
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: sigma_a
-      value: 0.2
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: sigma_b
-      value: 0.5
+      value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: lightOne
       value: 
       objectReference: {fileID: 1126242904}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
-      propertyPath: lightColor.b
-      value: 0.14509805
-      objectReference: {fileID: 0}
-    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
-      propertyPath: lightColor.g
-      value: 0.7294118
-      objectReference: {fileID: 0}
-    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
-      propertyPath: lightColor.r
-      value: 0.98039216
-      objectReference: {fileID: 0}
-    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: asymmetryphasefactor
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
-      propertyPath: densityStopThreshold
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
-      propertyPath: densitytransmittancestoplimit
-      value: 0.1
+      value: -0.4
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_RootOrder
@@ -233,31 +217,31 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 258.5026
+      value: 1.7499132
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 609.80505
+      value: 326.41037
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 126.46959
+      value: 1.0000002
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.86902446
+      value: 0.91439086
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0.4543147
+      value: 0.13665642
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.17364776
+      value: 0.37688446
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0.090780795
+      value: -0.056325674
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -355,7 +339,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &1365298860
 Light:
   m_ObjectHideFlags: 0
@@ -490,7 +474,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1833443787612013871, guid: 3e492cb940966bc4dafc24915ddaf5d8, type: 3}
       propertyPath: speed
-      value: 10000
+      value: 5000
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3e492cb940966bc4dafc24915ddaf5d8, type: 3}

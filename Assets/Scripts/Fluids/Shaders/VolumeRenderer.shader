@@ -51,6 +51,8 @@ Shader "Custom/VolumeRenderer"
             float gridToWorld;
             
             // light settings
+            bool forward;
+            
             float lightX;
             float lightY;
             float lightZ;
@@ -146,25 +148,28 @@ Shader "Custom/VolumeRenderer"
                                                 tx * ty * tz * c111;
             }
             
-            float RayMarchLight(float3 pos)
+            float LightMarch(float3 pos)
             {
                 // float3 dirToLight = normalize(_WorldSpaceLightPos0);
-                float3 lightVector = float3(lightX, lightY, lightZ) - pos;
+                float3 lightPos = float3(lightX, lightY, lightZ);
+                float3 lightVector = lightPos - pos;
                 float3 dirToLight = normalize(lightVector);
-                float3 lenToLight = length(lightVector);
+                float lenToLight = length(lightVector);
 
-                float stepSize = 1;
-                
+                float stepSize = 0.1;
                 float traveled = 0;
                 float totalDensity = 0;
 
-                float maxRange = min(300, lenToLight);
+                float maxRange = lenToLight;
                 while (traveled < maxRange)
                 {
+                    // marching from light to pos
                     float3 pt = pos + dirToLight * traveled;
                     totalDensity += Grid.SampleLevel(samplerGrid, pt / gridSize / gridToWorld, 0).x;
                     traveled += stepSize;
-                    stepSize += 0.1;
+                    stepSize += 0.2;
+
+                    // want higher light resolution closer to light
                 }
                 return exp(-totalDensity * sigma_b);
             }
@@ -188,7 +193,7 @@ Shader "Custom/VolumeRenderer"
                 // stop ray at depth
                 float range = min(depth, maxRange);
 
-                float stepSize = 10;
+                float stepSize = 8;
                 
                 float distanceTraveled = 0;
                 float transmittence = 1;
@@ -199,19 +204,19 @@ Shader "Custom/VolumeRenderer"
                 
                 while (distanceTraveled < range)
                 {
-                    
                     rayPos = entry + rayDir * distanceTraveled;
 
                     float3 samplePos = rayPos / scale;
                     float density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
-                    phaseValue = phase(dot(rayDir, float3(lightX, lightY, lightZ) - rayPos));
                     
                     if (density > densityThreshold)
                     {
                         // phase value depends of rayPos because of point light
                         // marching light
-                        float lightTransmittance = RayMarchLight(rayPos);
+                        float lightTransmittance = LightMarch(rayPos);
+                        float3 lightPos = float3(lightX, lightY, lightZ);
                         // merge
+                        phaseValue = phase(dot(rayDir, normalize(lightPos - rayPos)));
                         lighting +=
                             density * stepSize * transmittence * lightTransmittance * phaseValue;
                             // density * stepSize * transmittence;
@@ -229,7 +234,7 @@ Shader "Custom/VolumeRenderer"
                 }
 
                 float3 background = tex2D(_MainTex, id.uv);
-                float3 cloudColor = lighting * lightColor * 4;
+                float3 cloudColor = lighting * lightColor * 3;
                 float3 color = background * transmittence + cloudColor;
 
                 return float4(color, 0);

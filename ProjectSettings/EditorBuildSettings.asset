@@ -9,9 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Menu.unity
     guid: fbe8280be8c2deb42beee377f28e3ea8
   - enabled: 1
-    path: Assets/Scenes/Fluid.unity
-    guid: 95bd67f7e3d7eeb44be69fd840710bd6
+    path: Assets/Scenes/FluidSImulation.unity
+    guid: acac8f97a33cba442b86bdf5868bd84f
   - enabled: 1
-    path: Assets/Scenes/NBodySim.unity
-    guid: 4e49d457ac8fa86449d99ade73a37964
+    path: Assets/Scenes/Clouds.unity
+    guid: 95bd67f7e3d7eeb44be69fd840710bd6
   m_configObjects: {}

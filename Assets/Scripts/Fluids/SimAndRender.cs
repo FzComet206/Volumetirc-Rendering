@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
-using Random = UnityEngine.Random;
+using UnityEngine.SceneManagement;
 
 public class RealtimeInput
 {
@@ -35,7 +35,8 @@ public class SimAndRender: MonoBehaviour
     public List<int[]> glWireTriangles;
     
     // things to do with simulation
-    [SerializeField] private ComputeShader stableFluid;
+    [SerializeField] private ComputeShader clouds;
+    [SerializeField] private ComputeShader stableFluids;
     // [SerializeField] private GameObject lightOne;
     private RenderTexture renderTexture;
     private int gridSize = 256;
@@ -59,6 +60,8 @@ public class SimAndRender: MonoBehaviour
 
     private float gridToWorld;
     private float offset = 0;
+    private bool fluids = false;
+    
     
     private void Start()
     {
@@ -68,6 +71,7 @@ public class SimAndRender: MonoBehaviour
         InitBuffers();
         gridToWorld = gizmoScale * (gizmoMeshRes - 1) / (float) gridSize;
         cam.depthTextureMode = DepthTextureMode.Depth;
+        if (SceneManager.GetActiveScene().buildIndex == 1) fluids = true;
     }
 
     private void Update()
@@ -77,23 +81,29 @@ public class SimAndRender: MonoBehaviour
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        offset += Time.deltaTime * 10f;
         if (sceneUI.activeSelf)
         {
             Graphics.Blit(src, dest);
             return;
         }
+
+        offset += Time.deltaTime * 10f;
         
-        // handle simulation
-        stableFluid.SetTexture(0, "Grid", renderTexture);
-        stableFluid.SetInt("gridSize", gridSize);
-        stableFluid.SetFloat("offset", offset);
-
-        int threadGroupSim = gridSize / 4;
-        stableFluid.Dispatch(0, threadGroupSim, threadGroupSim, threadGroupSim);
-
+        if (fluids)
+        {
+            
+        }
+        else
+        {
+            // handle clouds 
+            clouds.SetTexture(0, "Grid", renderTexture);
+            clouds.SetInt("gridSize", gridSize);
+            clouds.SetFloat("offset", offset);
+            int threadGroupSim = gridSize / 4;
+            clouds.Dispatch(0, threadGroupSim, threadGroupSim, threadGroupSim);
+        }
+        
         // handle rendering
-        
         UpdateMaterial();
 
         volumeMaterial.SetFloat("lightX", lightPosition.x);

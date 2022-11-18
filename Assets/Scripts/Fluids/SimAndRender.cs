@@ -16,11 +16,6 @@ public class RealtimeInput
     public float outputDensity;
 }
 
-[System.Serializable]
-public class VolumeRenderingInput
-{
-}
-
 public class SimAndRender: MonoBehaviour
 {
     private GameObject sceneUI;
@@ -34,14 +29,17 @@ public class SimAndRender: MonoBehaviour
     public List<Vector3[]> glWireVertices;
     public List<int[]> glWireTriangles;
     
-    // things to do with simulation
+    // shaders
     [SerializeField] private ComputeShader clouds;
     [SerializeField] private ComputeShader stableFluids;
-    // [SerializeField] private GameObject lightOne;
-    private RenderTexture renderTexture;
-    private int gridSize = 256;
-
     
+    // sim and render grids
+    private RenderTexture renderGrid;
+    private RenderTexture density0;
+    private RenderTexture density1;
+    private RenderTexture velocity0;
+    private RenderTexture velocity1;
+
     // things to do with rendering
     [SerializeField] private Shader volumeRender;
     [SerializeField] public Transform lightOne;
@@ -54,29 +52,40 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] [Range(500, 3000)] int maxRange;
     [SerializeField] float sigma_a;
     [SerializeField] float sigma_b;
-    [SerializeField] float densityStopThreshold;
     [SerializeField] float asymmetryphasefactor;
     [SerializeField] float densitytransmittancestoplimit;
+    [SerializeField] private bool fixedLight;
 
+    private int gridSize = 256;
     private float gridToWorld;
     private float offset = 0;
     private bool fluids = false;
-    
     
     private void Start()
     {
         cam = GetComponent<Camera>();
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
         InitGizmosMesh();
-        InitBuffers();
         gridToWorld = gizmoScale * (gizmoMeshRes - 1) / (float) gridSize;
         cam.depthTextureMode = DepthTextureMode.Depth;
         if (SceneManager.GetActiveScene().buildIndex == 1) fluids = true;
+        
+        if (!fluids)
+        {
+            Debug.Log("loading cloud");
+            InitTextureCloud();
+        }
+        else
+        {
+            Debug.Log("loading fluids");
+            InitTextureFluid();
+        }
     }
 
     private void Update()
     {
         lightPosition = lightOne.position;
+        lightOne.gameObject.SetActive(!fixedLight);
     }
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -86,30 +95,43 @@ public class SimAndRender: MonoBehaviour
             Graphics.Blit(src, dest);
             return;
         }
-
-        offset += Time.deltaTime * 10f;
         
         if (fluids)
         {
-            
+            FluidRoutine();
         }
         else
         {
-            // handle clouds 
-            clouds.SetTexture(0, "Grid", renderTexture);
-            clouds.SetInt("gridSize", gridSize);
-            clouds.SetFloat("offset", offset);
-            int threadGroupSim = gridSize / 4;
-            clouds.Dispatch(0, threadGroupSim, threadGroupSim, threadGroupSim);
+            CloudRoutine();
         }
         
         // handle rendering
-        UpdateMaterial();
+        SetRenderInput();
+        Graphics.Blit(src, dest, volumeMaterial);
+    }
+    
+    private void FluidRoutine()
+    {
+    }
 
+    private void CloudRoutine()
+    {
+        offset += Time.deltaTime * 10f;
+        clouds.SetTexture(0, "Grid", renderGrid);
+        clouds.SetInt("gridSize", gridSize);
+        clouds.SetFloat("offset", offset);
+        int threadGroupSim = gridSize / 4;
+        clouds.Dispatch(0, threadGroupSim, threadGroupSim, threadGroupSim);
+    }
+
+    private void SetRenderInput()
+    {
+        if (!fixedLight) asymmetryphasefactor = -Mathf.Abs(asymmetryphasefactor);
+        if (fixedLight) asymmetryphasefactor = Mathf.Abs(asymmetryphasefactor);
+        UpdateMaterial();
         volumeMaterial.SetFloat("lightX", lightPosition.x);
         volumeMaterial.SetFloat("lightY", lightPosition.y);
         volumeMaterial.SetFloat("lightZ", lightPosition.z);
-        
         volumeMaterial.SetInt("gridSize", gridSize);
         volumeMaterial.SetFloat("gridToWorld", gridToWorld);
         volumeMaterial.SetColor("lightColor", lightColor);
@@ -117,12 +139,36 @@ public class SimAndRender: MonoBehaviour
         volumeMaterial.SetFloat("sigma_a", sigma_a);
         volumeMaterial.SetFloat("sigma_b", sigma_b);
         volumeMaterial.SetFloat("asymmetryPhaseFactor", asymmetryphasefactor);
-        volumeMaterial.SetFloat("densityThreshold", densityStopThreshold);
         volumeMaterial.SetFloat("densityTransmittanceStopLimit", densitytransmittancestoplimit);
+        volumeMaterial.SetInt("fixedLight", fixedLight? 1 : 0);
+        volumeMaterial.SetTexture("Grid", renderGrid);
+    }
 
-        volumeMaterial.SetTexture("Grid", renderTexture);
-        
-        Graphics.Blit(src, dest, volumeMaterial);
+    private void InitTextureFluid()
+    {
+        density0 = InitTexture(gridSize, RenderTextureFormat.R16);
+        density1 = InitTexture(gridSize, RenderTextureFormat.R16);
+        velocity0 = InitTexture(gridSize, RenderTextureFormat.ARGB32);
+        velocity1 = InitTexture(gridSize, RenderTextureFormat.ARGB32);
+    }
+    
+    private void InitTextureCloud()
+    {
+        renderGrid = InitTexture(gridSize, RenderTextureFormat.R16, TextureWrapMode.Mirror);
+    }
+
+    RenderTexture InitTexture(int size, RenderTextureFormat format, TextureWrapMode wrap = TextureWrapMode.Clamp)
+    {
+        RenderTexture rt;
+        rt= new RenderTexture(size, size, 0);
+        rt.dimension = TextureDimension.Tex3D;
+        rt.filterMode = FilterMode.Trilinear;
+        rt.volumeDepth = gridSize;
+        rt.format = format;
+        rt.wrapMode = wrap;
+        rt.enableRandomWrite = true;
+        rt.Create();
+        return rt;
     }
 
     private void UpdateMaterial()
@@ -132,19 +178,7 @@ public class SimAndRender: MonoBehaviour
             volumeMaterial = new Material(volumeRender);
         }
     }
-
-    private void InitBuffers()
-    {
-        renderTexture = new RenderTexture(gridSize, gridSize, 0);
-        renderTexture.dimension = TextureDimension.Tex3D;
-        renderTexture.filterMode = FilterMode.Trilinear;
-        renderTexture.volumeDepth = gridSize;
-        renderTexture.format = RenderTextureFormat.R16;
-        renderTexture.wrapMode = TextureWrapMode.Mirror;
-        renderTexture.enableRandomWrite = true;
-        renderTexture.Create();
-    }
-
+    
     private void InitGizmosMesh()
     {
         int size = gizmoMeshRes * gizmoMeshRes;

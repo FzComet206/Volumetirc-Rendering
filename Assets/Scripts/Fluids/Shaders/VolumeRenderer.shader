@@ -62,8 +62,8 @@ Shader "Custom/VolumeRenderer"
             float sigma_a;
             float sigma_b;
             float asymmetryPhaseFactor;
-            float densityThreshold;
             float densityTransmittanceStopLimit;
+            int fixedLight;
                     
             float remap(float v, float minOld, float maxOld, float minNew, float maxNew) {
                 return minNew + (v-minOld) * (maxNew - minNew) / (maxOld-minOld);
@@ -83,26 +83,6 @@ Shader "Custom/VolumeRenderer"
             float phase(float a)
             {
                 return hg(a, asymmetryPhaseFactor);
-            }
-
-            float SampleGrid(float3 pos)
-            {
-                pos = pos / gridToWorld;
-                int x = floor(pos.x);
-                int y = floor(pos.y);
-                int z = floor(pos.z);
-
-                if (x < 0 || x >= gridSize || y < 0 || y >= gridSize || z < 0 || z >= gridSize)
-                {
-                    return 0;
-                }
-
-                float d = densityBufferOne[CoordToIndex(x, y, z)];
-                if (d > densityThreshold)
-                {
-                    return d;
-                }
-                return 0;
             }
 
             float SampleGridTrilinear(float3 pos)
@@ -151,7 +131,16 @@ Shader "Custom/VolumeRenderer"
             float LightMarch(float3 pos)
             {
                 // float3 dirToLight = normalize(_WorldSpaceLightPos0);
-                float3 lightPos = float3(lightX, lightY, lightZ);
+                float3 lightPos;
+                if (fixedLight)
+                {
+                    lightPos = _WorldSpaceLightPos0;
+                }
+                else
+                {
+                    lightPos = float3(lightX, lightY, lightZ);
+                }
+                
                 float3 lightVector = lightPos - pos;
                 float3 dirToLight = normalize(lightVector);
                 float lenToLight = length(lightVector);
@@ -159,17 +148,27 @@ Shader "Custom/VolumeRenderer"
                 float stepSize = 0.1;
                 float traveled = 0;
                 float totalDensity = 0;
+                float range;
 
-                float maxRange = lenToLight;
-                while (traveled < maxRange)
+                if (!fixedLight)
+                {
+                    range = lenToLight;
+                } else
+                {
+                    range = 500;
+                }
+
+                while (traveled < range)
                 {
                     // marching from light to pos
                     float3 pt = pos + dirToLight * traveled;
-                    totalDensity += Grid.SampleLevel(samplerGrid, pt / gridSize / gridToWorld, 0).x;
+                    float3 uvw = pt / gridSize / gridToWorld;
+                    
+                    totalDensity += Grid.SampleLevel(samplerGrid, uvw, 0).x;
                     traveled += stepSize;
-                    stepSize += 0.2;
-
+                    
                     // want higher light resolution closer to light
+                    stepSize += 0.2;
                 }
                 return exp(-totalDensity * sigma_b);
             }
@@ -193,7 +192,7 @@ Shader "Custom/VolumeRenderer"
                 // stop ray at depth
                 float range = min(depth, maxRange);
 
-                float stepSize = 8;
+                float stepSize = 6;
                 
                 float distanceTraveled = 0;
                 float transmittence = 1;
@@ -201,6 +200,10 @@ Shader "Custom/VolumeRenderer"
 
                 float3 rayPos;
                 float scale = gridSize * gridToWorld;
+
+                float3 lightPos;
+                lightPos = _WorldSpaceLightPos0;
+                phaseValue = phase(dot(rayDir, lightPos));
                 
                 while (distanceTraveled < range)
                 {
@@ -209,19 +212,24 @@ Shader "Custom/VolumeRenderer"
                     float3 samplePos = rayPos / scale;
                     float density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
                     
-                    if (density > densityThreshold)
+                    if (density > 0)
                     {
                         // phase value depends of rayPos because of point light
                         // marching light
                         float lightTransmittance = LightMarch(rayPos);
-                        float3 lightPos = float3(lightX, lightY, lightZ);
-                        // merge
-                        phaseValue = phase(dot(rayDir, normalize(lightPos - rayPos)));
+
+                        if (!fixedLight)
+                        {
+                            lightPos = float3(lightX, lightY, lightZ);
+                            phaseValue = phase(dot(rayDir, normalize(lightPos - rayPos)));
+                        }
+                        
                         lighting +=
                             density * stepSize * transmittence * lightTransmittance * phaseValue;
                             // density * stepSize * transmittence;
                         // update transmittance
                         transmittence *= exp(-density * stepSize * sigma_a);
+
 
                         // exit early when opaque
                         if (transmittence < densityTransmittanceStopLimit)

@@ -25,10 +25,12 @@ public class SimAndRender: MonoBehaviour
     private RenderTexture renderGrid;
     private RenderTexture density0;
     private RenderTexture density1;
+    private RenderTexture densityTemp;
     private RenderTexture p;
     private RenderTexture div;
     private RenderTexture velocity0;
     private RenderTexture velocity1;
+    private RenderTexture velocityTemp;
     
     // kernels
     private int addDensity;
@@ -105,6 +107,15 @@ public class SimAndRender: MonoBehaviour
     {
         lightPosition = lightOne.position;
         lightOne.gameObject.SetActive(!fixedLight);
+        
+        if (fluids)
+        {
+            FluidRoutine();
+        }
+        else
+        {
+            CloudRoutine();
+        }
     }
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -115,14 +126,6 @@ public class SimAndRender: MonoBehaviour
             return;
         }
         
-        if (fluids)
-        {
-            FluidRoutine();
-        }
-        else
-        {
-            CloudRoutine();
-        }
         
         // handle rendering
         SetRenderInput();
@@ -142,9 +145,11 @@ public class SimAndRender: MonoBehaviour
         stableFluids.Dispatch(addDensity, tg, tg, tg);
 
         // density diffuse
+        Graphics.CopyTexture(density0, densityTemp);
         for (int i = 0; i < 20; i++)
         {
             stableFluids.SetTexture(densityDiffuse,"DensityRead", density1);
+            stableFluids.SetTexture(densityDiffuse,"DensityTemp", densityTemp);
             stableFluids.SetTexture(densityDiffuse,"DensityWrite", density0);
             stableFluids.Dispatch(densityDiffuse, tg, tg, tg);
         }
@@ -160,9 +165,11 @@ public class SimAndRender: MonoBehaviour
         stableFluids.SetTexture(addVelocity, "VelocityWrite", velocity1);
 
         // velocity diffuse
+        Graphics.CopyTexture(velocity0, velocityTemp);
         for (int i = 0; i < 20; i++)
         {
             stableFluids.SetTexture(viscousDiffuse,"VelocityRead", velocity1);
+            stableFluids.SetTexture(viscousDiffuse,"VelocityTemp", velocityTemp);
             stableFluids.SetTexture(viscousDiffuse,"VelocityWrite", velocity0);
             stableFluids.Dispatch(viscousDiffuse, tg, tg, tg);
         }
@@ -242,10 +249,12 @@ public class SimAndRender: MonoBehaviour
     {
         density0 = InitTexture(gridSize, RenderTextureFormat.R16);
         density1 = InitTexture(gridSize, RenderTextureFormat.R16);
+        densityTemp = InitTexture(gridSize, RenderTextureFormat.R16);
         p = InitTexture(gridSize, RenderTextureFormat.R16);
         div = InitTexture(gridSize, RenderTextureFormat.R16);
         velocity0 = InitTexture(gridSize, RenderTextureFormat.ARGB32);
         velocity1 = InitTexture(gridSize, RenderTextureFormat.ARGB32);
+        velocityTemp = InitTexture(gridSize, RenderTextureFormat.ARGB32);
     }
     
     private void InitTextureCloud()

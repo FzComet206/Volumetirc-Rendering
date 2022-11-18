@@ -289,14 +289,6 @@ PrefabInstance:
       propertyPath: lightOne
       value: 
       objectReference: {fileID: 1126242904}
-    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
-      propertyPath: fixedLight
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
-      propertyPath: asymmetryphasefactor
-      value: 0.4
-      objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_RootOrder
       value: 2

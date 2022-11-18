@@ -10,14 +10,16 @@
 
 // fluids parameters
 Texture3D<float> DensityRead;
+Texture3D<float> DensityTemp;
 RWTexture3D<float> DensityWrite;
 Texture3D<float4> VelocityRead;
+Texture3D<float4> VelocityTemp;
 RWTexture3D<float4> VelocityWrite;
 RWTexture3D<float> p;
 RWTexture3D<float> div;
 
-SamplerState samplerDensity;
-SamplerState samplerVelocity;
+SamplerState samplerDensityRead;
+SamplerState samplerVelocityRead;
 
 // other parameters
 int gridWidth;
@@ -52,12 +54,12 @@ void DensityDiffusion(uint3 id : SV_DispatchThreadID)
     // input d0, diff, dt, output d1
     float a = dt * diff;
     DensityWrite[id] = (DensityRead[id] + a * (
-        DensityWrite[int3(id.x - 1, id.y, id.z)] +
-        DensityWrite[int3(id.x + 1, id.y, id.z)] +
-        DensityWrite[int3(id.x, id.y - 1, id.z)] +
-        DensityWrite[int3(id.x, id.y + 1, id.z)] +
-        DensityWrite[int3(id.x, id.y, id.z - 1)] +
-        DensityWrite[int3(id.x, id.y, id.z + 1)]
+        DensityTemp[int3(id.x - 1, id.y, id.z)] +
+        DensityTemp[int3(id.x + 1, id.y, id.z)] +
+        DensityTemp[int3(id.x, id.y - 1, id.z)] +
+        DensityTemp[int3(id.x, id.y + 1, id.z)] +
+        DensityTemp[int3(id.x, id.y, id.z - 1)] +
+        DensityTemp[int3(id.x, id.y, id.z + 1)]
         )) / (1 + 6 * a);
 }
 
@@ -68,12 +70,12 @@ void ViscousDiffusion(uint3 id : SV_DispatchThreadID)
     // input d0, diff, dt, output d1
     float a = dt * visc;
     VelocityWrite[id] = (VelocityRead[id] + a * (
-        VelocityWrite[int3(id.x - 1, id.y, id.z)] +
-        VelocityWrite[int3(id.x + 1, id.y, id.z)] +
-        VelocityWrite[int3(id.x, id.y - 1, id.z)] +
-        VelocityWrite[int3(id.x, id.y + 1, id.z)] +
-        VelocityWrite[int3(id.x, id.y, id.z - 1)] +
-        VelocityWrite[int3(id.x, id.y, id.z + 1)]
+        VelocityTemp[int3(id.x - 1, id.y, id.z)] +
+        VelocityTemp[int3(id.x + 1, id.y, id.z)] +
+        VelocityTemp[int3(id.x, id.y - 1, id.z)] +
+        VelocityTemp[int3(id.x, id.y + 1, id.z)] +
+        VelocityTemp[int3(id.x, id.y, id.z - 1)] +
+        VelocityTemp[int3(id.x, id.y, id.z + 1)]
         )) / (1 + 6 * a);
 }
 
@@ -82,9 +84,9 @@ void DensityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
     // back trace in d0 with v/dt, sample trilinear
-    float3 samplePos = float3(id.x, id.y, id.z) - VelocityWrite[id] * dt * speed;
+    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id] * dt * speed;
     float3 uvw = ToUvw(samplePos);
-    DensityWrite[id] = DensityRead.SampleLevel(samplerDensity, uvw, 0);
+    DensityWrite[id] = DensityRead.SampleLevel(samplerDensityRead, uvw, 0);
 }
 
 [numthreads(8,8,8)]
@@ -92,9 +94,9 @@ void VelocityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
     // back trace in d0 with v/dt, sample trilinear
-    float3 samplePos = float3(id.x, id.y, id.z) - VelocityWrite[id] * dt * speed;
+    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id] * dt * speed;
     float3 uvw = ToUvw(samplePos);
-    VelocityWrite[id] = VelocityRead.SampleLevel(samplerVelocity, uvw, 0);
+    VelocityWrite[id] = VelocityRead.SampleLevel(samplerVelocityRead, uvw, 0);
 }
 
 [numthreads(8,8,8)]

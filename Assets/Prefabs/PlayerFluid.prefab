@@ -55,9 +55,9 @@ MonoBehaviour:
   gizmoMeshRes: 6
   clouds: {fileID: 7200000, guid: 7cfe57688ba63904cb2da66f179148c1, type: 3}
   stableFluids: {fileID: 7200000, guid: 7457a9fb8a5603b42ae5f3c8aa384fec, type: 3}
-  diff: 0.1
-  visc: 1
-  speed: 100
+  diff: 100
+  visc: 0
+  speed: 80
   volumeRender: {fileID: 4800000, guid: 12122892c581e6340830719f2283245b, type: 3}
   lightOne: {fileID: 0}
   volumeMaterial: {fileID: 0}
@@ -67,7 +67,7 @@ MonoBehaviour:
   sigma_b: 0.7
   asymmetryphasefactor: 0.4
   densitytransmittancestoplimit: 0.1
-  fixedLight: 0
+  fixedLight: 1
 --- !u!114 &1698029598996524483
 MonoBehaviour:
   m_ObjectHideFlags: 0

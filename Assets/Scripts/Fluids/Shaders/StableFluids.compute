@@ -31,7 +31,7 @@ float speed;
 
 float3 ToUvw(uint3 id)
 {
-    return float3(1 - id.x / (float) gridWidth, 1 - id.y / (float) gridWidth, 1 - id.z / (float) gridWidth);
+    return float3((id.x + 0.5) / (float) gridWidth, (id.y + 0.5) / (float) gridWidth, (id.z + 0.5) / (float) gridWidth);
 }
 
 void Set_Bnd(uint3 id)
@@ -41,16 +41,19 @@ void Set_Bnd(uint3 id)
 [numthreads(4,4,4)]
 void AddDensity(uint3 id : SV_DispatchThreadID)
 {
-    if (id.y > 62 && id.y < 66 && id.z > 62 && id.z < 66 && id.x > 62 && id.x < 66)
+    if (id.y == 2 && id.z > 61 && id.z < 67 && id.x > 61 && id.x < 67)
     {
-        DensityWrite[id] += 1000 * dt;
+        DensityWrite[id] = DensityRead[id] + 1;
+    }
+    else
+    {
+        DensityWrite[id] = DensityRead[id];
     }
 }
 
 [numthreads(4,4,4)]
 void AddVelocity(uint3 id : SV_DispatchThreadID)
 {
-    VelocityWrite[id] = float4(0,-10,0,0);
 }
 
 [numthreads(4,4,4)]
@@ -63,7 +66,7 @@ void DensityDiffusion(uint3 id : SV_DispatchThreadID)
     if (id.z % gridWidth - 1 == 0){ return; }
 
     // idk why but this need to be small
-    float a = dt * diff * gridWidth * gridWidth;
+    float a = dt * diff * 0.01;
     DensityWrite[id] = (DensityRead[id] + a * (
         DensityTemp[int3(id.x - 1, id.y, id.z)] +
         DensityTemp[int3(id.x + 1, id.y, id.z)] +
@@ -98,7 +101,7 @@ void DensityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
     // back trace in d0 with v/dt, sample trilinear
-    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id].xyz * dt * speed;
+    float3 samplePos = float3(id.x, id.y, id.z) - float3(0,-1,0) * dt * speed;
     float3 uvw = ToUvw(samplePos);
     DensityWrite[id] = DensityRead.SampleLevel(samplerDensityRead, uvw, 0);
 }

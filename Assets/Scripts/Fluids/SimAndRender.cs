@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
@@ -9,7 +10,9 @@ public class SimAndRender: MonoBehaviour
     private GameObject sceneUI;
     private Camera cam;
 
-    [SerializeField] private Material m;
+    private Material activeM;
+    [SerializeField] private Material mCloud;
+    [SerializeField] private Material mFluid;
     [SerializeField] [Range(2, 20)] private int gizmoMeshRes = 6;
     private Mesh gizmoMesh;
     private int gizmoScale = 128;
@@ -77,10 +80,9 @@ public class SimAndRender: MonoBehaviour
     
     private void Start()
     {
+        Application.targetFrameRate = 144;
         cam = GetComponent<Camera>();
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
-        InitGizmosMesh();
-        gridToWorld = gizmoScale * (gizmoMeshRes - 1) / (float) gridSize;
         cam.depthTextureMode = DepthTextureMode.Depth;
         if (SceneManager.GetActiveScene().buildIndex == 1) fluids = true;
         
@@ -88,10 +90,12 @@ public class SimAndRender: MonoBehaviour
         {
             Debug.Log("loading cloud");
             InitTextureCloud();
+            activeM = mCloud;
         }
         else
         {
             Debug.Log("loading fluids");
+            gridSize = 128;
             InitTextureFluid();
             addDensity = stableFluids.FindKernel("AddDensity");
             addVelocity = stableFluids.FindKernel("AddVelocity");
@@ -102,9 +106,11 @@ public class SimAndRender: MonoBehaviour
             project0 = stableFluids.FindKernel("Project0");
             project1 = stableFluids.FindKernel("Project1");
             project2 = stableFluids.FindKernel("Project2");
+            activeM = mFluid;
         }
-
         tg = gridSize / 4;
+        InitGizmosMesh();
+        gridToWorld = gizmoScale * (gizmoMeshRes - 1) / (float) gridSize;
     }
 
     private void Update()
@@ -137,6 +143,7 @@ public class SimAndRender: MonoBehaviour
     
     private void FluidRoutine()
     {
+        stableFluids.SetInt("gridWidth", gridSize);
         stableFluids.SetFloat("dt", Time.deltaTime);
         stableFluids.SetFloat("diff", diff);
         stableFluids.SetFloat("visc", visc);
@@ -379,7 +386,7 @@ public class SimAndRender: MonoBehaviour
             GameObject o = new GameObject(i.ToString(), typeof(MeshFilter), typeof(MeshRenderer), typeof(MeshCollider));
             objs[i] = o;
             o.GetComponent<MeshFilter>().mesh = gizmoMesh;
-            o.GetComponent<MeshRenderer>().sharedMaterial = m;
+            o.GetComponent<MeshRenderer>().sharedMaterial = activeM;
             o.GetComponent<MeshCollider>().sharedMesh = gizmoMesh;
             o.transform.localScale = Vector3.one * gizmoScale;
             o.layer = 6;

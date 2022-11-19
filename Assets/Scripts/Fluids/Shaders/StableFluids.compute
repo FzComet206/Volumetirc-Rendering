@@ -31,7 +31,7 @@ float speed;
 
 float3 ToUvw(uint3 id)
 {
-    return float3(id.x / (float) gridWidth, id.y / (float) gridWidth, id.z / (float) gridWidth);
+    return float3(1 - id.x / (float) gridWidth, 1 - id.y / (float) gridWidth, 1 - id.z / (float) gridWidth);
 }
 
 void Set_Bnd(uint3 id)
@@ -41,11 +41,16 @@ void Set_Bnd(uint3 id)
 [numthreads(4,4,4)]
 void AddDensity(uint3 id : SV_DispatchThreadID)
 {
+    if (id.y > 62 && id.y < 66 && id.z > 62 && id.z < 66 && id.x > 62 && id.x < 66)
+    {
+        DensityWrite[id] += 1000 * dt;
+    }
 }
 
 [numthreads(4,4,4)]
 void AddVelocity(uint3 id : SV_DispatchThreadID)
 {
+    VelocityWrite[id] = float4(0,-10,0,0);
 }
 
 [numthreads(4,4,4)]
@@ -53,7 +58,12 @@ void DensityDiffusion(uint3 id : SV_DispatchThreadID)
 {
     // run this 20 times
     // input d0, diff, dt, output d1
-    float a = dt * diff;
+    if (id.x % gridWidth - 1 == 0){ return; }
+    if (id.y % gridWidth - 1 == 0){ return; }
+    if (id.z % gridWidth - 1 == 0){ return; }
+
+    // idk why but this need to be small
+    float a = dt * diff * gridWidth * gridWidth;
     DensityWrite[id] = (DensityRead[id] + a * (
         DensityTemp[int3(id.x - 1, id.y, id.z)] +
         DensityTemp[int3(id.x + 1, id.y, id.z)] +
@@ -68,6 +78,10 @@ void DensityDiffusion(uint3 id : SV_DispatchThreadID)
 void ViscousDiffusion(uint3 id : SV_DispatchThreadID)
 {
     // input d0, diff, dt, output d1
+    if (id.x % gridWidth - 1 == 0){ return; }
+    if (id.y % gridWidth - 1 == 0){ return; }
+    if (id.z % gridWidth - 1 == 0){ return; }
+    
     float a = dt * visc;
     VelocityWrite[id] = (VelocityRead[id] + a * (
         VelocityTemp[int3(id.x - 1, id.y, id.z)] +
@@ -84,7 +98,7 @@ void DensityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
     // back trace in d0 with v/dt, sample trilinear
-    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id] * dt * speed;
+    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id].xyz * dt * speed;
     float3 uvw = ToUvw(samplePos);
     DensityWrite[id] = DensityRead.SampleLevel(samplerDensityRead, uvw, 0);
 }
@@ -94,7 +108,7 @@ void VelocityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
     // back trace in d0 with v/dt, sample trilinear
-    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id] * dt * speed;
+    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id].xyz * dt * speed;
     float3 uvw = ToUvw(samplePos);
     VelocityWrite[id] = VelocityRead.SampleLevel(samplerVelocityRead, uvw, 0);
 }
@@ -102,16 +116,51 @@ void VelocityAdvect(uint3 id : SV_DispatchThreadID)
 [numthreads(4,4,4)]
 void Project0(uint3 id : SV_DispatchThreadID)
 {
+    if (id.x % gridWidth - 1 == 0){ return; }
+    if (id.y % gridWidth - 1 == 0){ return; }
+    if (id.z % gridWidth - 1 == 0){ return; }
+    
+    int3 dx = float3(1,0,0);
+    int3 dy = float3(0,1,0);
+    int3 dz = float3(0,0,1);
+    
+    div[id] = 
+        -(VelocityRead[id + dx].x - VelocityRead[id - dx].x +
+            VelocityRead[id + dy].y - VelocityRead[id - dy].y +
+                VelocityRead[id + dz].z - VelocityRead[id - dz].z);
+        
+    p[id] = 0;
 }
 
 [numthreads(4,4,4)]
 void Project1(uint3 id : SV_DispatchThreadID)
 {
+    if (id.x % gridWidth - 1 == 0){ return; }
+    if (id.y % gridWidth - 1 == 0){ return; }
+    if (id.z % gridWidth - 1 == 0){ return; }
+    
+    int3 dx = float3(1,0,0);
+    int3 dy = float3(0,1,0);
+    int3 dz = float3(0,0,1);
+    
+    p[id] = (div[id] + p[id + dx] + p[id - dx] + p[id + dy] + p[id - dy] + p[id + dz] + p[id - dz]) / 6;
 }
 
 [numthreads(4,4,4)]
 void Project2(uint3 id : SV_DispatchThreadID)
 {
+    if (id.x % gridWidth - 1 == 0){ return; }
+    if (id.y % gridWidth - 1 == 0){ return; }
+    if (id.z % gridWidth - 1 == 0){ return; }
+    
+    float3 v;
+    int3 dx = float3(1,0,0);
+    int3 dy = float3(0,1,0);
+    int3 dz = float3(0,0,1);
+    v.x = (p[id + dx] - p[id - dx]);
+    v.y = (p[id + dy] - p[id - dy]);
+    v.z = (p[id + dz] - p[id - dz]);
+    VelocityWrite[id] -= float4(v, 0);
 }
 
 

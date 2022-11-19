@@ -50,13 +50,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5215c35d65a2904b9acfe15b764e37a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m: {fileID: 2100000, guid: 687bdfa9003bed343b753d55caaff5a4, type: 2}
+  mCloud: {fileID: 2100000, guid: 687bdfa9003bed343b753d55caaff5a4, type: 2}
+  mFluid: {fileID: 2100000, guid: df2746e9d3922a14485b13bb09d66ff0, type: 2}
   gizmoMeshRes: 6
   clouds: {fileID: 7200000, guid: 7cfe57688ba63904cb2da66f179148c1, type: 3}
   stableFluids: {fileID: 7200000, guid: 7457a9fb8a5603b42ae5f3c8aa384fec, type: 3}
-  diff: 1
+  diff: 0.1
   visc: 1
-  speed: 1
+  speed: 100
   volumeRender: {fileID: 4800000, guid: 12122892c581e6340830719f2283245b, type: 3}
   lightOne: {fileID: 0}
   volumeMaterial: {fileID: 0}

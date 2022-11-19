@@ -23,11 +23,15 @@ public class SimAndRender: MonoBehaviour
     
     // sim and render grids
     private RenderTexture renderGrid;
+    
     private RenderTexture density0;
     private RenderTexture density1;
     private RenderTexture densityTemp;
+    
     private RenderTexture p;
+    private RenderTexture pTemp;
     private RenderTexture div;
+    
     private RenderTexture velocity0;
     private RenderTexture velocity1;
     private RenderTexture velocityTemp;
@@ -64,12 +68,12 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] float densitytransmittancestoplimit;
     [SerializeField] private bool fixedLight;
     
-
     private int gridSize = 256;
     private float gridToWorld;
     private float offset = 0;
     private bool fluids = false;
     private int tg;
+    private int iterations = 10;
     
     private void Start()
     {
@@ -107,7 +111,6 @@ public class SimAndRender: MonoBehaviour
     {
         lightPosition = lightOne.position;
         lightOne.gameObject.SetActive(!fixedLight);
-        
         if (fluids)
         {
             FluidRoutine();
@@ -146,8 +149,13 @@ public class SimAndRender: MonoBehaviour
 
         // density diffuse
         Graphics.CopyTexture(density0, densityTemp);
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < iterations; i++)
         {
+            stableFluids.SetTexture(densityDiffuse,"DensityRead", density1);
+            stableFluids.SetTexture(densityDiffuse,"DensityTemp", density0);
+            stableFluids.SetTexture(densityDiffuse,"DensityWrite", densityTemp);
+            stableFluids.Dispatch(densityDiffuse, tg, tg, tg);
+            
             stableFluids.SetTexture(densityDiffuse,"DensityRead", density1);
             stableFluids.SetTexture(densityDiffuse,"DensityTemp", densityTemp);
             stableFluids.SetTexture(densityDiffuse,"DensityWrite", density0);
@@ -166,8 +174,13 @@ public class SimAndRender: MonoBehaviour
 
         // velocity diffuse
         Graphics.CopyTexture(velocity0, velocityTemp);
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < iterations; i++)
         {
+            stableFluids.SetTexture(viscousDiffuse,"VelocityRead", velocity1);
+            stableFluids.SetTexture(viscousDiffuse,"VelocityTemp", velocity0);
+            stableFluids.SetTexture(viscousDiffuse,"VelocityWrite", velocityTemp);
+            stableFluids.Dispatch(viscousDiffuse, tg, tg, tg);
+            
             stableFluids.SetTexture(viscousDiffuse,"VelocityRead", velocity1);
             stableFluids.SetTexture(viscousDiffuse,"VelocityTemp", velocityTemp);
             stableFluids.SetTexture(viscousDiffuse,"VelocityWrite", velocity0);
@@ -180,9 +193,16 @@ public class SimAndRender: MonoBehaviour
         stableFluids.SetTexture(project0, "p", p);
         stableFluids.Dispatch(project0, tg, tg, tg);
 
-        for (int i = 0; i < 20; i++)
+        Graphics.CopyTexture(p, pTemp);
+        for (int i = 0; i < iterations; i++)
         {
             stableFluids.SetTexture(project1, "div", div);
+            stableFluids.SetTexture(project1, "pTemp", p);
+            stableFluids.SetTexture(project1, "p", pTemp);
+            stableFluids.Dispatch(project1, tg, tg, tg);
+            
+            stableFluids.SetTexture(project1, "div", div);
+            stableFluids.SetTexture(project1, "pTemp", pTemp);
             stableFluids.SetTexture(project1, "p", p);
             stableFluids.Dispatch(project1, tg, tg, tg);
         }
@@ -202,7 +222,8 @@ public class SimAndRender: MonoBehaviour
         stableFluids.SetTexture(project0, "p", p);
         stableFluids.Dispatch(project0, tg, tg, tg);
 
-        for (int i = 0; i < 20; i++)
+        Graphics.CopyTexture(p, pTemp);
+        for (int i = 0; i < iterations; i++)
         {
             stableFluids.SetTexture(project1, "div", div);
             stableFluids.SetTexture(project1, "p", p);
@@ -251,6 +272,7 @@ public class SimAndRender: MonoBehaviour
         density1 = InitTexture(gridSize, RenderTextureFormat.R16);
         densityTemp = InitTexture(gridSize, RenderTextureFormat.R16);
         p = InitTexture(gridSize, RenderTextureFormat.R16);
+        pTemp = InitTexture(gridSize, RenderTextureFormat.R16);
         div = InitTexture(gridSize, RenderTextureFormat.R16);
         velocity0 = InitTexture(gridSize, RenderTextureFormat.ARGB32);
         velocity1 = InitTexture(gridSize, RenderTextureFormat.ARGB32);

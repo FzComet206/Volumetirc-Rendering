@@ -16,6 +16,7 @@ Texture3D<float4> VelocityRead;
 Texture3D<float4> VelocityTemp;
 RWTexture3D<float4> VelocityWrite;
 RWTexture3D<float> p;
+RWTexture3D<float> pTemp;
 RWTexture3D<float> div;
 
 SamplerState samplerDensityRead;
@@ -37,17 +38,17 @@ void Set_Bnd(uint3 id)
 {
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void AddDensity(uint3 id : SV_DispatchThreadID)
 {
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void AddVelocity(uint3 id : SV_DispatchThreadID)
 {
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void DensityDiffusion(uint3 id : SV_DispatchThreadID)
 {
     // run this 20 times
@@ -63,10 +64,9 @@ void DensityDiffusion(uint3 id : SV_DispatchThreadID)
         )) / (1 + 6 * a);
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void ViscousDiffusion(uint3 id : SV_DispatchThreadID)
 {
-    // run this 20 times
     // input d0, diff, dt, output d1
     float a = dt * visc;
     VelocityWrite[id] = (VelocityRead[id] + a * (
@@ -79,7 +79,7 @@ void ViscousDiffusion(uint3 id : SV_DispatchThreadID)
         )) / (1 + 6 * a);
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void DensityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
@@ -89,7 +89,7 @@ void DensityAdvect(uint3 id : SV_DispatchThreadID)
     DensityWrite[id] = DensityRead.SampleLevel(samplerDensityRead, uvw, 0);
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void VelocityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
@@ -99,17 +99,17 @@ void VelocityAdvect(uint3 id : SV_DispatchThreadID)
     VelocityWrite[id] = VelocityRead.SampleLevel(samplerVelocityRead, uvw, 0);
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void Project0(uint3 id : SV_DispatchThreadID)
 {
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void Project1(uint3 id : SV_DispatchThreadID)
 {
 }
 
-[numthreads(8,8,8)]
+[numthreads(4,4,4)]
 void Project2(uint3 id : SV_DispatchThreadID)
 {
 }

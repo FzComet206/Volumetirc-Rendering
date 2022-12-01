@@ -168,7 +168,7 @@ Shader "Custom/VolumeRenderer"
                     traveled += stepSize;
                     
                     // want higher light resolution closer to light
-                    stepSize += 0.2;
+                    stepSize += 0.15;
                 }
                 return exp(-totalDensity * sigma_b);
             }
@@ -192,7 +192,7 @@ Shader "Custom/VolumeRenderer"
                 // stop ray at depth
                 float range = min(depth, maxRange);
 
-                float stepSize = 6;
+                float stepSize = 5;
                 
                 float distanceTraveled = 0;
                 float transmittence = 1;
@@ -210,7 +210,16 @@ Shader "Custom/VolumeRenderer"
                     rayPos = entry + rayDir * distanceTraveled;
 
                     float3 samplePos = rayPos / scale;
-                    float density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
+
+                    float density;
+                    if (samplePos.x < 0 || samplePos.x > 1 || samplePos.y < 0 || samplePos.y > 1 || samplePos.z < 0 || samplePos.z > 1)
+                    {
+                        density = 0;
+                    }
+                    else
+                    {
+                        density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
+                    }
                     
                     if (density > 0)
                     {
@@ -242,7 +251,7 @@ Shader "Custom/VolumeRenderer"
                 }
 
                 float3 background = tex2D(_MainTex, id.uv);
-                float3 cloudColor = lighting * lightColor * 3;
+                float3 cloudColor = lighting * lightColor * 6;
                 float3 color = background * transmittence + cloudColor;
 
                 return float4(color, 0);

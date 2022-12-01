@@ -30,9 +30,9 @@ public class SimAndRender: MonoBehaviour
     private RenderTexture density1;
     private RenderTexture densityTemp;
     
-    private RenderTexture p;
-    private RenderTexture pTemp;
-    private RenderTexture div;
+    private RenderTexture p0;
+    private RenderTexture p1;
+    private RenderTexture div3f;
     
     private RenderTexture velocity0;
     private RenderTexture velocity1;
@@ -48,6 +48,7 @@ public class SimAndRender: MonoBehaviour
     private int project0;
     private int project1;
     private int project2;
+    private int setZero;
     
     // fluid input
     [SerializeField] float diff;
@@ -75,10 +76,17 @@ public class SimAndRender: MonoBehaviour
     private float offset = 0;
     private bool fluids = false;
     private int tg;
-    private int iterations = 5;
+    private int iterations = 10;
     
     private void Start()
     {
+        // todo
+        
+        // fix the density off center prob
+        // check copy texture 
+        // add randomness in velocity dir
+        // add vorticity
+        
         Application.targetFrameRate = 144;
         cam = GetComponent<Camera>();
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
@@ -105,6 +113,7 @@ public class SimAndRender: MonoBehaviour
             project0 = stableFluids.FindKernel("Project0");
             project1 = stableFluids.FindKernel("Project1");
             project2 = stableFluids.FindKernel("Project2");
+            setZero = stableFluids.FindKernel("SetZero");
             activeM = mFluid;
         }
         tg = gridSize / 4;
@@ -116,6 +125,10 @@ public class SimAndRender: MonoBehaviour
     {
         lightPosition = lightOne.position;
         lightOne.gameObject.SetActive(!fixedLight);
+    }
+
+    private void FixedUpdate()
+    {
         if (fluids)
         {
             FluidRoutine();
@@ -134,119 +147,106 @@ public class SimAndRender: MonoBehaviour
             return;
         }
         
-        
         // handle rendering
         SetRenderInput();
         Graphics.Blit(src, dest, volumeMaterial);
     }
+
+    (RenderTexture one, RenderTexture two) Swap(RenderTexture one, RenderTexture two)
+    {
+        return (two, one);
+    }
     
     private void FluidRoutine()
     {
+        if (offset < 100f)
+        {
+            offset += Time.fixedDeltaTime * 7;
+        }
+        
         stableFluids.SetInt("gridWidth", gridSize);
-        stableFluids.SetFloat("dt", Time.deltaTime);
+        stableFluids.SetFloat("dt", Time.fixedDeltaTime);
         stableFluids.SetFloat("diff", diff);
         stableFluids.SetFloat("visc", visc);
-        stableFluids.SetFloat("speed", speed);
+        stableFluids.SetFloat("offset", offset);
         
-        // density add
-        stableFluids.SetTexture(addDensity, "DensityRead", density0);
-        stableFluids.SetTexture(addDensity, "DensityWrite", density1);
-        stableFluids.Dispatch(addDensity, tg, tg, tg);
-
-        // density diffuse
+        // set velocity 1 and density 1 to all zeros
+        stableFluids.SetTexture(setZero, "setZero", density1);
+        stableFluids.SetTexture(setZero, "setZero3f", velocity1);
+        stableFluids.Dispatch(setZero, tg, tg, tg);
+        
         for (int i = 0; i < iterations; i++)
         {
-            Graphics.CopyTexture(density0, densityTemp);
-            stableFluids.SetTexture(densityDiffuse,"DensityTemp", densityTemp);
-            stableFluids.SetTexture(densityDiffuse,"DensityRead", density1);
-            stableFluids.SetTexture(densityDiffuse,"DensityWrite", density0);
-            stableFluids.Dispatch(densityDiffuse, tg, tg, tg);
-            
+            // density diffuse
             Graphics.CopyTexture(density1, densityTemp);
             stableFluids.SetTexture(densityDiffuse,"DensityTemp", densityTemp);
             stableFluids.SetTexture(densityDiffuse,"DensityRead", density0);
             stableFluids.SetTexture(densityDiffuse,"DensityWrite", density1);
             stableFluids.Dispatch(densityDiffuse, tg, tg, tg);
+            
+            // velocity diffuse
+            Graphics.CopyTexture(velocity1, velocityTemp);
+            stableFluids.SetTexture(viscousDiffuse,"VelocityTemp", velocityTemp);
+            stableFluids.SetTexture(viscousDiffuse,"VelocityRead", velocity0);
+            stableFluids.SetTexture(viscousDiffuse,"VelocityWrite", velocity1);
+            stableFluids.Dispatch(viscousDiffuse, tg, tg, tg);
         }
         
         // density advect
-        stableFluids.SetTexture(densityAdvect, "DensityRead", density1);
         stableFluids.SetTexture(densityAdvect, "VelocityRead", velocity1);
+        stableFluids.SetTexture(densityAdvect, "DensityRead", density1);
         stableFluids.SetTexture(densityAdvect, "DensityWrite", density0);
         stableFluids.Dispatch(densityAdvect, tg, tg, tg);
+        
+        // velocity advect
+        stableFluids.SetTexture(velocityAdvect, "VelocityRead", velocity1);
+        stableFluids.SetTexture(velocityAdvect, "VelocityWrite", velocity0);
+        stableFluids.Dispatch(velocityAdvect, tg, tg, tg);
+        
+        // density add
+        stableFluids.SetTexture(addDensity, "DensityRead", density0);
+        stableFluids.SetTexture(addDensity, "DensityWrite", density1);
+        stableFluids.Dispatch(addDensity, tg, tg, tg);
         
         // velocity add
         stableFluids.SetTexture(addVelocity, "VelocityRead", velocity0);
         stableFluids.SetTexture(addVelocity, "VelocityWrite", velocity1);
-
-        // velocity diffuse
-        Graphics.CopyTexture(velocity0, velocityTemp);
-        for (int i = 0; i < iterations; i++)
-        {
-            stableFluids.SetTexture(viscousDiffuse,"VelocityRead", velocity1);
-            stableFluids.SetTexture(viscousDiffuse,"VelocityTemp", velocity0);
-            stableFluids.SetTexture(viscousDiffuse,"VelocityWrite", velocityTemp);
-            stableFluids.Dispatch(viscousDiffuse, tg, tg, tg);
-            
-            stableFluids.SetTexture(viscousDiffuse,"VelocityRead", velocity1);
-            stableFluids.SetTexture(viscousDiffuse,"VelocityTemp", velocityTemp);
-            stableFluids.SetTexture(viscousDiffuse,"VelocityWrite", velocity0);
-            stableFluids.Dispatch(viscousDiffuse, tg, tg, tg);
-        }
+        stableFluids.Dispatch(addVelocity, tg, tg, tg);
         
-        // first project 
-        stableFluids.SetTexture(project0, "VelocityRead", velocity0);
-        stableFluids.SetTexture(project0, "div", div);
-        stableFluids.SetTexture(project0, "p", p);
-        stableFluids.Dispatch(project0, tg, tg, tg);
-
-        Graphics.CopyTexture(p, pTemp);
-        for (int i = 0; i < iterations; i++)
-        {
-            stableFluids.SetTexture(project1, "div", div);
-            stableFluids.SetTexture(project1, "pTemp", p);
-            stableFluids.SetTexture(project1, "p", pTemp);
-            stableFluids.Dispatch(project1, tg, tg, tg);
-            
-            stableFluids.SetTexture(project1, "div", div);
-            stableFluids.SetTexture(project1, "pTemp", pTemp);
-            stableFluids.SetTexture(project1, "p", p);
-            stableFluids.Dispatch(project1, tg, tg, tg);
-        }
         
-        stableFluids.SetTexture(project2, "VelocityWrite", velocity0);
-        stableFluids.SetTexture(project2, "p", p);
-        stableFluids.Dispatch(project2, tg, tg, tg);
+        // at this point, density1 / velocity1 are the newest buffer, we enforce mass conserving laws on velocity field
         
-        // velocity advect
-        stableFluids.SetTexture(velocityAdvect, "VelocityRead", velocity0);
-        stableFluids.SetTexture(velocityAdvect, "VelocityWrite", velocity1);
-        stableFluids.Dispatch(velocityAdvect, tg, tg, tg);
-        
-        // second project
+        // divergence 
         stableFluids.SetTexture(project0, "VelocityRead", velocity1);
-        stableFluids.SetTexture(project0, "div", div);
-        stableFluids.SetTexture(project0, "p", p);
+        stableFluids.SetTexture(project0, "div", div3f);
+        stableFluids.SetTexture(project0, "pWrite", p1);
         stableFluids.Dispatch(project0, tg, tg, tg);
 
-        Graphics.CopyTexture(p, pTemp);
+        // jacobi 
+        
         for (int i = 0; i < iterations; i++)
         {
-            stableFluids.SetTexture(project1, "div", div);
-            stableFluids.SetTexture(project1, "p", p);
+            (p0, p1) = Swap(p0, p1);
+            Graphics.CopyTexture(p0, p1);
+            stableFluids.SetTexture(project1, "div", div3f);
+            stableFluids.SetTexture(project1, "pRead", p0);
+            stableFluids.SetTexture(project1, "pWrite", p1);
             stableFluids.Dispatch(project1, tg, tg, tg);
         }
         
-        stableFluids.SetTexture(project2, "VelocityWrite", velocity1);
-        stableFluids.SetTexture(project2, "p", p);
+        // project
+        stableFluids.SetTexture(project2, "VelocityRead", velocity1);
+        stableFluids.SetTexture(project2, "VelocityWrite", velocity0);
+        stableFluids.SetTexture(project2, "pRead", p1);
         stableFluids.Dispatch(project2, tg, tg, tg);
-
-        renderGrid = density0;
+        
+        renderGrid = density1;
+        (density0, density1) = Swap(density0, density1);
     }
 
     private void CloudRoutine()
     {
-        offset += Time.deltaTime * 10f;
+        offset += Time.fixedDeltaTime * 10f;
         clouds.SetTexture(0, "Grid", renderGrid);
         clouds.SetInt("gridSize", gridSize);
         clouds.SetFloat("offset", offset);
@@ -255,8 +255,6 @@ public class SimAndRender: MonoBehaviour
 
     private void SetRenderInput()
     {
-        if (!fixedLight) asymmetryphasefactor = -Mathf.Abs(asymmetryphasefactor);
-        if (fixedLight) asymmetryphasefactor = Mathf.Abs(asymmetryphasefactor);
         UpdateMaterial();
         volumeMaterial.SetFloat("lightX", lightPosition.x);
         volumeMaterial.SetFloat("lightY", lightPosition.y);
@@ -278,12 +276,14 @@ public class SimAndRender: MonoBehaviour
         density0 = InitTexture(gridSize, RenderTextureFormat.R16);
         density1 = InitTexture(gridSize, RenderTextureFormat.R16);
         densityTemp = InitTexture(gridSize, RenderTextureFormat.R16);
-        p = InitTexture(gridSize, RenderTextureFormat.R16);
-        pTemp = InitTexture(gridSize, RenderTextureFormat.R16);
-        div = InitTexture(gridSize, RenderTextureFormat.R16);
+        
         velocity0 = InitTexture(gridSize, RenderTextureFormat.ARGB32);
         velocity1 = InitTexture(gridSize, RenderTextureFormat.ARGB32);
         velocityTemp = InitTexture(gridSize, RenderTextureFormat.ARGB32);
+        
+        p0 = InitTexture(gridSize, RenderTextureFormat.R16);
+        p1 = InitTexture(gridSize, RenderTextureFormat.R16);
+        div3f = InitTexture(gridSize, RenderTextureFormat.ARGB32);
     }
     
     private void InitTextureCloud()
@@ -297,10 +297,15 @@ public class SimAndRender: MonoBehaviour
         {
             Destroy(density0);
             Destroy(density1);
-            Destroy(p);
-            Destroy(div);
+            Destroy(densityTemp);
+            
             Destroy(velocity0);
             Destroy(velocity1);
+            Destroy(velocityTemp);
+            
+            Destroy(p0);
+            Destroy(p1);
+            Destroy(div3f);
         }
         else
         {

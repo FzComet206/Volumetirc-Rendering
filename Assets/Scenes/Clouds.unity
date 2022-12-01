@@ -286,9 +286,29 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: sigma_b
+      value: 0.7
+      objectReference: {fileID: 0}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: lightOne
       value: 
       objectReference: {fileID: 1126242904}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: fixedLight
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: gizmoMeshRes
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: densitytransmittancestoplimit
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 801061009286911861, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_RootOrder
       value: 2
@@ -336,6 +356,10 @@ PrefabInstance:
     - target: {fileID: 1698029598996524482, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_Name
       value: PlayerFluid
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698029598996524483, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: cruiseSpeed
+      value: 20000
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}

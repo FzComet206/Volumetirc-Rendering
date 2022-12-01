@@ -132,47 +132,59 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: diff
-      value: 300
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: visc
+      value: 0.15
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: speed
-      value: -100
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: lightOne
       value: 
       objectReference: {fileID: 1131210215}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: fixedLight
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 801061009286911861, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 29.259184
+      value: 43.91964
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 336.9632
+      value: 241.7321
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 639
+      value: 628.32715
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.38051412
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0.02060794
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.9231926
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: 0.04999841
       objectReference: {fileID: 0}
     - target: {fileID: 1698029598996524481, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -189,6 +201,14 @@ PrefabInstance:
     - target: {fileID: 1698029598996524482, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: m_Name
       value: PlayerFluid
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698029598996524482, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
+    - target: {fileID: 1698029598996524483, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: cruiseSpeed
+      value: 30000
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}

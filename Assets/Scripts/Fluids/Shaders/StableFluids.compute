@@ -1,24 +1,33 @@
 #pragma kernel AddDensity
 #pragma kernel AddVelocity
 #pragma kernel DensityAdvect
-#pragma kernel VelocityAdvect 
+#pragma kernel VelocityAdvect
 #pragma kernel DensityDiffusion 
 #pragma kernel ViscousDiffusion 
 #pragma kernel Project0
 #pragma kernel Project1
 #pragma kernel Project2
+#pragma kernel SetZero
 
 // fluids parameters
 Texture3D<float> DensityRead;
 Texture3D<float> DensityTemp;
 RWTexture3D<float> DensityWrite;
+
 Texture3D<float4> VelocityRead;
 Texture3D<float4> VelocityTemp;
 RWTexture3D<float4> VelocityWrite;
-RWTexture3D<float> p;
-RWTexture3D<float> pTemp;
-RWTexture3D<float> div;
 
+// projection
+Texture3D<float> pRead;
+RWTexture3D<float> pWrite;
+RWTexture3D<float4> div;
+
+// set zeros
+RWTexture3D<float> setZero;
+RWTexture3D<float4> setZero3f;
+
+// sampler
 SamplerState samplerDensityRead;
 SamplerState samplerVelocityRead;
 
@@ -27,21 +36,19 @@ int gridWidth;
 float dt;
 float diff;
 float visc;
-float speed;
+
+float offset;
 
 float3 ToUvw(uint3 id)
 {
     return float3((id.x + 0.5) / (float) gridWidth, (id.y + 0.5) / (float) gridWidth, (id.z + 0.5) / (float) gridWidth);
 }
 
-void Set_Bnd(uint3 id)
-{
-}
 
 [numthreads(4,4,4)]
 void AddDensity(uint3 id : SV_DispatchThreadID)
 {
-    if (id.y == 2 && id.z > 61 && id.z < 67 && id.x > 61 && id.x < 67)
+    if (id.y > 2 && id.y < 5 && id.z > 0 + offset && id.z < 5 + offset && id.x > 61 && id.x < 67)
     {
         DensityWrite[id] = DensityRead[id] + 1;
     }
@@ -54,6 +61,20 @@ void AddDensity(uint3 id : SV_DispatchThreadID)
 [numthreads(4,4,4)]
 void AddVelocity(uint3 id : SV_DispatchThreadID)
 {
+
+    float h = 128 / 2.0;
+    float x = h - abs(h - id.x);
+    
+    if (id.y < 5)
+    {
+        float4 v = x * float4(0, 1, 0, 0);
+        VelocityWrite[id] = v;
+    } else
+    {
+        VelocityWrite[id] = VelocityRead[id];
+    }
+
+    
 }
 
 [numthreads(4,4,4)]
@@ -61,13 +82,18 @@ void DensityDiffusion(uint3 id : SV_DispatchThreadID)
 {
     // run this 20 times
     // input d0, diff, dt, output d1
-    if (id.x % gridWidth - 1 == 0){ return; }
-    if (id.y % gridWidth - 1 == 0){ return; }
-    if (id.z % gridWidth - 1 == 0){ return; }
+    bool b = id.x == gridWidth - 1 || id.y == gridWidth - 1 || id.z == gridWidth - 1;
+    bool d = id.x == 0 || id.y == 0 || id.z == 0;
+
+    if (b || d)
+    {
+        DensityWrite[id] = DensityRead[id];
+        return;
+    }
 
     // idk why but this need to be small
-    float a = dt * diff * 0.01;
-    DensityWrite[id] = (DensityRead[id] + a * (
+    float a = dt * diff;
+    float density = (DensityRead[id] + a * (
         DensityTemp[int3(id.x - 1, id.y, id.z)] +
         DensityTemp[int3(id.x + 1, id.y, id.z)] +
         DensityTemp[int3(id.x, id.y - 1, id.z)] +
@@ -75,25 +101,41 @@ void DensityDiffusion(uint3 id : SV_DispatchThreadID)
         DensityTemp[int3(id.x, id.y, id.z - 1)] +
         DensityTemp[int3(id.x, id.y, id.z + 1)]
         )) / (1 + 6 * a);
+
+    DensityWrite[id] = density;
 }
 
 [numthreads(4,4,4)]
 void ViscousDiffusion(uint3 id : SV_DispatchThreadID)
 {
     // input d0, diff, dt, output d1
-    if (id.x % gridWidth - 1 == 0){ return; }
-    if (id.y % gridWidth - 1 == 0){ return; }
-    if (id.z % gridWidth - 1 == 0){ return; }
+
+    int3 L = id + int3(-1, 0, 0);
+    L.x = max(0, L.x);
+    int3 R = id + int3(1, 0, 0);
+    R.x = min(gridWidth - 1, R.x);
+    
+    int3 B = id + int3(0, -1, 0);
+    B.y = min(0, B.y);
+    int3 T = id + int3(0, 1, 0);
+    T.y = max(gridWidth - 1, T.y);
+    
+    int3 D = id + int3(0, 0, -1);
+    D.z = min(0, D.z);
+    int3 U = id + int3(0, 0, 1);
+    U.z = max(gridWidth - 1, U.z);
     
     float a = dt * visc;
-    VelocityWrite[id] = (VelocityRead[id] + a * (
-        VelocityTemp[int3(id.x - 1, id.y, id.z)] +
-        VelocityTemp[int3(id.x + 1, id.y, id.z)] +
-        VelocityTemp[int3(id.x, id.y - 1, id.z)] +
-        VelocityTemp[int3(id.x, id.y + 1, id.z)] +
-        VelocityTemp[int3(id.x, id.y, id.z - 1)] +
-        VelocityTemp[int3(id.x, id.y, id.z + 1)]
+    float3 v = (VelocityRead[id].xyz + a * (
+        VelocityTemp[L].xyz +
+        VelocityTemp[R].xyz +
+        VelocityTemp[B].xyz +
+        VelocityTemp[T].xyz +
+        VelocityTemp[D].xyz +
+        VelocityTemp[U].xyz 
         )) / (1 + 6 * a);
+
+    VelocityWrite[id] = float4(v, 0);
 }
 
 [numthreads(4,4,4)]
@@ -101,9 +143,9 @@ void DensityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
     // back trace in d0 with v/dt, sample trilinear
-    float3 samplePos = float3(id.x, id.y, id.z) - float3(0,-1,0) * dt * speed;
+    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id].xyz * dt * 50;
     float3 uvw = ToUvw(samplePos);
-    DensityWrite[id] = DensityRead.SampleLevel(samplerDensityRead, uvw, 0);
+    DensityWrite[id] = DensityRead.SampleLevel(samplerDensityRead, uvw, 0) * 0.95;
 }
 
 [numthreads(4,4,4)]
@@ -111,7 +153,7 @@ void VelocityAdvect(uint3 id : SV_DispatchThreadID)
 {
     // input v, d0, dt, output d1
     // back trace in d0 with v/dt, sample trilinear
-    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id].xyz * dt * speed;
+    float3 samplePos = float3(id.x, id.y, id.z) - VelocityRead[id].xyz * dt * 50;
     float3 uvw = ToUvw(samplePos);
     VelocityWrite[id] = VelocityRead.SampleLevel(samplerVelocityRead, uvw, 0);
 }
@@ -119,51 +161,94 @@ void VelocityAdvect(uint3 id : SV_DispatchThreadID)
 [numthreads(4,4,4)]
 void Project0(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x % gridWidth - 1 == 0){ return; }
-    if (id.y % gridWidth - 1 == 0){ return; }
-    if (id.z % gridWidth - 1 == 0){ return; }
+    if (id.x % gridWidth - 1 == 0 || id.y % gridWidth - 1 == 0 || id.z % gridWidth - 1 == 0)
+    {
+        return;
+    }
     
-    int3 dx = float3(1,0,0);
-    int3 dy = float3(0,1,0);
-    int3 dz = float3(0,0,1);
-    
-    div[id] = 
-        -(VelocityRead[id + dx].x - VelocityRead[id - dx].x +
-            VelocityRead[id + dy].y - VelocityRead[id - dy].y +
-                VelocityRead[id + dz].z - VelocityRead[id - dz].z);
-        
-    p[id] = 0;
+    int3 L = id + int3(-1, 0, 0);
+    int3 R = id + int3(1, 0, 0);
+    int3 B = id + int3(0, -1, 0);
+    int3 T = id + int3(0, 1, 0);
+    int3 D = id + int3(0, 0, -1);
+    int3 U = id + int3(0, 0, 1);
+
+    float3 left = VelocityRead[L].xyz;
+    float3 right = VelocityRead[R].xyz;
+    float3 bot= VelocityRead[B].xyz;
+    float3 top = VelocityRead[T].xyz;
+    float3 back = VelocityRead[D].xyz;
+    float3 front = VelocityRead[U].xyz;
+
+    float divergence = 0.5 * (
+            (right.x - left.x) +
+            (top.y - bot.y) +
+            (front.z - back.z)
+        );
+
+    pWrite[id] = 0;
+    div[id] = float4(divergence, 0, 0, 0);
 }
 
 [numthreads(4,4,4)]
 void Project1(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x % gridWidth - 1 == 0){ return; }
-    if (id.y % gridWidth - 1 == 0){ return; }
-    if (id.z % gridWidth - 1 == 0){ return; }
+    if (id.x % gridWidth - 1 == 0 || id.y % gridWidth - 1 == 0 || id.z % gridWidth - 1 == 0)
+    {
+        return;
+    }
     
-    int3 dx = float3(1,0,0);
-    int3 dy = float3(0,1,0);
-    int3 dz = float3(0,0,1);
+    int3 L = id + int3(-1, 0, 0);
+    int3 R = id + int3(1, 0, 0);
+    int3 B = id + int3(0, -1, 0);
+    int3 T = id + int3(0, 1, 0);
+    int3 D = id + int3(0, 0, -1);
+    int3 U = id + int3(0, 0, 1);
+
+    float left = pRead[L];
+    float right = pRead[R];
+    float bot= pRead[B];
+    float top = pRead[T];
+    float back = pRead[D];
+    float front = pRead[U];
+
+    float divergence = div[id].r;
     
-    p[id] = (div[id] + p[id + dx] + p[id - dx] + p[id + dy] + p[id - dy] + p[id + dz] + p[id - dz]) / 6;
+    pWrite[id] = (
+        left + right + bot + top + back + front - divergence
+        ) / 6.0;
 }
 
 [numthreads(4,4,4)]
 void Project2(uint3 id : SV_DispatchThreadID)
 {
-    if (id.x % gridWidth - 1 == 0){ return; }
-    if (id.y % gridWidth - 1 == 0){ return; }
-    if (id.z % gridWidth - 1 == 0){ return; }
+    if (id.x % gridWidth - 1 == 0 || id.y % gridWidth - 1 == 0 || id.z % gridWidth - 1 == 0)
+    {
+        return;
+    }
     
-    float3 v;
-    int3 dx = float3(1,0,0);
-    int3 dy = float3(0,1,0);
-    int3 dz = float3(0,0,1);
-    v.x = (p[id + dx] - p[id - dx]);
-    v.y = (p[id + dy] - p[id - dy]);
-    v.z = (p[id + dz] - p[id - dz]);
-    VelocityWrite[id] -= float4(v, 0);
+    int3 L = id + int3(-1, 0, 0);
+    int3 R = id + int3(1, 0, 0);
+    int3 B = id + int3(0, -1, 0);
+    int3 T = id + int3(0, 1, 0);
+    int3 D = id + int3(0, 0, -1);
+    int3 U = id + int3(0, 0, 1);
+
+    float left = pRead[L];
+    float right = pRead[R];
+    float bot= pRead[B];
+    float top = pRead[T];
+    float back = pRead[D];
+    float front = pRead[U];
+
+    float3 v = VelocityRead[id].xyz - float3(right - left, top - bot, front - back) * 0.5;
+    VelocityWrite[id] = float4(v, 0);
 }
 
+[numthreads(4,4,4)]
+void SetZero(uint3 id : SV_DispatchThreadID)
+{
+    setZero[id] = 0;
+    setZero3f[id] = 0;
+}
 

@@ -2,125 +2,63 @@ Base path: 'C:/Program Files/Unity/Hub/Editor/2021.3.11f1/Editor/Data', plugins 
 Cmd: initializeCompiler
 
 Cmd: compileComputeKernel
-  insize=5888 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=DensityAdvect cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(49): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=908
+  insize=7495 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=DensityDiffusion cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(55): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(89): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(148): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(166): signed/unsigned mismatch, unsigned assumed
+ ok=1 outsize=1714
 
 Cmd: compileComputeKernel
-  insize=5950 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project0 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(49): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1535
-
-Cmd: compileComputeKernel
-  insize=5929 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddDensity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(46): signed/unsigned mismatch, unsigned assumed
-  error: 2 plat 4 at StableFluids.compute(219): syntax error: unexpected end of file
- ok=0 outsize=0
-
-Cmd: compileComputeKernel
-  insize=6129 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project1 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
-  error: 1 plat 4 at StableFluids.compute(228): implicit truncation of vector type
- ok=1 outsize=1532
-
-Cmd: compileComputeKernel
-  insize=6130 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddVelocity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
-  error: 1 plat 4 at StableFluids.compute(228): implicit truncation of vector type
- ok=1 outsize=617
-
-Cmd: compileComputeKernel
-  insize=6114 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=VelocityAdvect cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
-  error: 1 plat 4 at StableFluids.compute(228): implicit truncation of vector type
- ok=1 outsize=863
-
-Cmd: compileComputeKernel
-  insize=6131 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=DensityDiffusion cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1670
-
-Cmd: compileComputeKernel
-  insize=6094 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=SetZero cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=311
-
-Cmd: compileComputeKernel
-  insize=6098 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project2 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1504
-
-Cmd: compileComputeKernel
-  insize=6139 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=SetZero cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=311
-
-Cmd: compileComputeKernel
-  insize=6139 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=DensityAdvect cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=908
-
-Cmd: compileComputeKernel
-  insize=6170 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=SetZero cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=392
-
-Cmd: compileComputeKernel
-  insize=6184 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project1 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1480
-
-Cmd: compileComputeKernel
-  insize=6178 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=DensityAdvect cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=908
-
-Cmd: compileComputeKernel
-  insize=6178 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=SetZero cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=392
-
-Cmd: compileComputeKernel
-  insize=6112 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddDensity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=996
-
-Cmd: compileComputeKernel
-  insize=6086 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddDensity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=996
-
-Cmd: compileComputeKernel
-  insize=6110 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=DensityAdvect cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=936
-
-Cmd: compileComputeKernel
-  insize=6121 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project2 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1452
-
-Cmd: compileComputeKernel
-  insize=6141 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=ViscousDiffusion cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1613
-
-Cmd: compileComputeKernel
-  insize=6141 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=DensityAdvect cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=936
-
-Cmd: compileComputeKernel
-  insize=6145 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project2 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1452
-
-Cmd: compileComputeKernel
-  insize=6145 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=SetZero cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=392
-
-Cmd: compileComputeKernel
-  insize=6145 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddDensity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=996
-
-Cmd: compileComputeKernel
-  insize=6204 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddVelocity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
-  error: 1 plat 4 at StableFluids.compute(109): signed/unsigned mismatch, unsigned assumed
+  insize=7495 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddVelocity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(55): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(89): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(148): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(166): signed/unsigned mismatch, unsigned assumed
  ok=1 outsize=625
 
 Cmd: compileComputeKernel
-  insize=6440 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddDensity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
-  error: 1 plat 4 at StableFluids.compute(109): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=996
+  insize=7532 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddVelocity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(55): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(89): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(148): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(166): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(285): signed/unsigned mismatch, unsigned assumed
+ ok=1 outsize=625
 
 Cmd: compileComputeKernel
-  insize=6257 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project1 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1480
+  insize=7522 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project2 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(55): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(89): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(148): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(166): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(285): signed/unsigned mismatch, unsigned assumed
+ ok=1 outsize=2060
 
 Cmd: compileComputeKernel
-  insize=6211 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project1 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=1480
+  insize=7552 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project1 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(55): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(89): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(148): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(166): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(285): signed/unsigned mismatch, unsigned assumed
+ ok=1 outsize=2248
 
 Cmd: compileComputeKernel
-  insize=6285 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddDensity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(51): signed/unsigned mismatch, unsigned assumed
-  error: 1 plat 4 at StableFluids.compute(85): signed/unsigned mismatch, unsigned assumed
- ok=1 outsize=996
+  insize=7546 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=DensityAdvect cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(55): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(89): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(148): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(166): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(285): signed/unsigned mismatch, unsigned assumed
+ ok=1 outsize=1184
 
+Cmd: compileComputeKernel
+  insize=7562 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=Project1 cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(55): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(89): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(148): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(166): signed/unsigned mismatch, unsigned assumed
+ ok=1 outsize=2964
+
+Cmd: compileComputeKernel
+  insize=7768 file=Assets/Scripts/Fluids/Shaders/StableFluids.compute kernel=AddVelocity cachingPP=1 ppOnly=0 stripLineD=0 buildPlatform=19 km=<UNITY_VERSION=202139> pKW=UNITY_ENABLE_REFLECTION_BUFFERS UNITY_USE_DITHER_MASK_FOR_ALPHABLENDED_SHADOWS UNITY_PBS_USE_BRDF1 UNITY_SPECCUBE_BOX_PROJECTION UNITY_SPECCUBE_BLENDING UNITY_ENABLE_DETAIL_NORMALMAP SHADER_API_DESKTOP UNITY_LIGHT_PROBE_PROXY_VOLUME UNITY_LIGHTMAP_FULL_HDR uKW=SHADER_STAGE_COMPUTE platform=d3d11 flags=0 reqs=16385 forceDXC=0 forceFXC=0  error: 1 plat 4 at StableFluids.compute(64): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(98): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(157): signed/unsigned mismatch, unsigned assumed
+  error: 1 plat 4 at StableFluids.compute(175): signed/unsigned mismatch, unsigned assumed
+ ok=1 outsize=625
+
+Cmd: shutdown

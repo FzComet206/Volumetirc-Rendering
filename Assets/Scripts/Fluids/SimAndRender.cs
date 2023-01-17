@@ -76,7 +76,7 @@ public class SimAndRender: MonoBehaviour
     private float offset = 0;
     private bool fluids = false;
     private int tg;
-    private int iterations = 10;
+    private int iterations = 6;
     
     private void Start()
     {

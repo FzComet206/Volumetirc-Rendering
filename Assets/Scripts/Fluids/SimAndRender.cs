@@ -78,6 +78,10 @@ public class SimAndRender: MonoBehaviour
     private int tg;
     private int iterations = 6;
     
+    // render sphere
+    private float renderSphereRadius;
+    private float renderSphereOrigin;
+    
     private void Start()
     {
         // todo
@@ -116,8 +120,13 @@ public class SimAndRender: MonoBehaviour
             setZero = stableFluids.FindKernel("SetZero");
             activeM = mFluid;
         }
-        tg = gridSize / 4;
         InitGizmosMesh();
+
+        float origin = gizmoMeshRes * gizmoScale / 2f;
+        float radius = gizmoMeshRes * gizmoScale / 3f;
+        renderSphereOrigin = origin;
+        renderSphereRadius = radius;
+        tg = gridSize / 4;
         gridToWorld = gizmoScale * (gizmoMeshRes - 1) / (float) gridSize;
     }
 
@@ -256,17 +265,24 @@ public class SimAndRender: MonoBehaviour
     private void SetRenderInput()
     {
         UpdateMaterial();
+        volumeMaterial.SetFloat("origin", renderSphereOrigin);
+        volumeMaterial.SetFloat("radius", renderSphereRadius);
+        
         volumeMaterial.SetFloat("lightX", lightPosition.x);
         volumeMaterial.SetFloat("lightY", lightPosition.y);
         volumeMaterial.SetFloat("lightZ", lightPosition.z);
+        
         volumeMaterial.SetInt("gridSize", gridSize);
         volumeMaterial.SetFloat("gridToWorld", gridToWorld);
+        
         volumeMaterial.SetColor("lightColor", lightColor);
         volumeMaterial.SetInt("maxRange", maxRange);
+        
         volumeMaterial.SetFloat("sigma_a", sigma_a);
         volumeMaterial.SetFloat("sigma_b", sigma_b);
         volumeMaterial.SetFloat("asymmetryPhaseFactor", asymmetryphasefactor);
         volumeMaterial.SetFloat("densityTransmittanceStopLimit", densitytransmittancestoplimit);
+        
         volumeMaterial.SetInt("fixedLight", fixedLight? 1 : 0);
         volumeMaterial.SetTexture("Grid", renderGrid);
     }

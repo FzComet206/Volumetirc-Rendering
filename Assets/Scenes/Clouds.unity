@@ -302,6 +302,10 @@ PrefabInstance:
       value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
+      propertyPath: asymmetryphasefactor
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: densitytransmittancestoplimit
       value: 0.1
       objectReference: {fileID: 0}

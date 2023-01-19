@@ -64,6 +64,10 @@ Shader "Custom/VolumeRenderer"
             float asymmetryPhaseFactor;
             float densityTransmittanceStopLimit;
             int fixedLight;
+
+            // render sphere
+            float origin;
+            float radius;;
                     
             float remap(float v, float minOld, float maxOld, float minNew, float maxNew) {
                 return minNew + (v-minOld) * (maxNew - minNew) / (maxOld-minOld);
@@ -155,12 +159,11 @@ Shader "Custom/VolumeRenderer"
                     range = lenToLight;
                 } else
                 {
-                    range = 500;
+                    range = 1000;
                 }
 
                 while (traveled < range)
                 {
-                    // marching from light to pos
                     float3 pt = pos + dirToLight * traveled;
                     float3 uvw = pt / gridSize / gridToWorld;
                     
@@ -168,7 +171,8 @@ Shader "Custom/VolumeRenderer"
                     traveled += stepSize;
                     
                     // want higher light resolution closer to light
-                    stepSize += 0.15;
+                    stepSize += 0.05;
+                    if (traveled > radius){break;}
                 }
                 return exp(-totalDensity * sigma_b);
             }
@@ -177,6 +181,7 @@ Shader "Custom/VolumeRenderer"
             float4 frag(v2f id) : SV_Target
             {
                 // get ray
+                float3 origin3 = float3(origin, origin, origin);
                 float3 entry = _WorldSpaceCameraPos;
                 float viewLength = length(id.viewVector);
                 float3 rayDir = id.viewVector / viewLength;
@@ -204,12 +209,21 @@ Shader "Custom/VolumeRenderer"
                 float3 lightPos;
                 lightPos = _WorldSpaceLightPos0;
                 phaseValue = phase(dot(rayDir, lightPos));
+
+                // rendersphere
                 
                 while (distanceTraveled < range)
                 {
                     rayPos = entry + rayDir * distanceTraveled;
 
+                    if (length(rayPos - origin3) > radius)
+                    {
+                        distanceTraveled += stepSize;
+                        continue;
+                    }
+
                     float3 samplePos = rayPos / scale;
+
 
                     float density;
                     if (samplePos.x < 0 || samplePos.x > 1 || samplePos.y < 0 || samplePos.y > 1 || samplePos.z < 0 || samplePos.z > 1)

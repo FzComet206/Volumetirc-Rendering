@@ -28,6 +28,6 @@ public class LightMove : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         Vector3 norm = collision.contacts[0].normal;
-        velocity = Vector3.Reflect(velocity, norm).normalized * speed * Time.fixedDeltaTime;
+        velocity = Vector3.Reflect(velocity, -norm).normalized * speed * Time.fixedDeltaTime;
     }
 }

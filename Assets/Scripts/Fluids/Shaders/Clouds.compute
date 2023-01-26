@@ -34,7 +34,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     
     float3 pos = float3((float) id.x, (float) id.y, (float) id.z);
     float3 posD = float3((float) id.x + 4321, (float) id.y + 1234, (float) id.z - 2048);
-    pos.x += offset;
+    pos.y += offset;
 
     float domainWrap = Fbm(posD / 100) * 30;
     

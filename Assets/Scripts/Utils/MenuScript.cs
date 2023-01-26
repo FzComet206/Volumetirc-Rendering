@@ -4,14 +4,9 @@ using UnityEngine.SceneManagement;
 
 public class MenuScript: MonoBehaviour
 {
-    public void FluidSim()
-    {
-        SceneManager.LoadScene(1);
-    }
-    
     public void NBodySIm()
     {
-        SceneManager.LoadScene(2);
+        SceneManager.LoadScene(1);
     }
 
     public void SetWindowed()

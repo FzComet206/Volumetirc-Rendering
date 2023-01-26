@@ -123,11 +123,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!1 &2113921 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 380020343883943900, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
-  m_PrefabInstance: {fileID: 6459177986158950509}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &545971721
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,22 +324,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1114706679271431706, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetFHD
-      objectReference: {fileID: 0}
-    - target: {fileID: 1226887617769753618, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
-      propertyPath: m_text
-      value: Toggle FullScreen
-      objectReference: {fileID: 0}
-    - target: {fileID: 5581290910067491641, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6459177984957594461, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
-      propertyPath: toggleFullScreen
-      value: 
-      objectReference: {fileID: 2113921}
     - target: {fileID: 6459177985611696776, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
       propertyPath: m_Name
       value: Screen
@@ -392,18 +371,6 @@ PrefabInstance:
     - target: {fileID: 6459177985611696779, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7933622330290758536, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
-      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: SetQHD
-      objectReference: {fileID: 0}
-    - target: {fileID: 7986263456597631624, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
-      propertyPath: toggleFullScreen
-      value: 
-      objectReference: {fileID: 2113921}
-    - target: {fileID: 9198535197535807186, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}
-      propertyPath: m_IsActive
-      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b921c97ee041c9f4bb124c8ec6e0b5c3, type: 3}

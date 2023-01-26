@@ -48,7 +48,7 @@ Shader "Custom/VolumeRenderer"
             SamplerState samplerGrid;
             
             int gridSize;
-            float gridToWorld;
+            float positionOffset;
             
             // light settings
             bool forward;
@@ -88,52 +88,10 @@ Shader "Custom/VolumeRenderer"
             {
                 return hg(a, asymmetryPhaseFactor);
             }
-
-            float SampleGridTrilinear(float3 pos)
-            {
-                float gx, gy, gz, tx, ty, tz;
-                int gxi, gyi, gzi;
-                float c000, c100, c010, c110, c001, c101, c011, c111;
-                
-                gx = pos.x / gridToWorld;
-                gy = pos.y / gridToWorld;
-                gz = pos.z / gridToWorld;
-                
-                gxi = round(gx);
-                gyi = round(gy);
-                gzi = round(gz);
-
-                if (gxi < 1 || gxi >= gridSize-1 || gyi < 1 || gyi >= gridSize-1 || gzi < 1 || gzi >= gridSize-1)
-                {
-                    return 0;
-                }
-                
-                tx = gx - gxi;
-                ty = gy - gyi;
-                tz = gz - gzi;
-
-                c000 = densityBufferOne[CoordToIndex(gxi, gyi, gzi)];
-                c100 = densityBufferOne[CoordToIndex(gxi + 1, gyi, gzi)];
-                c010 = densityBufferOne[CoordToIndex(gxi, gyi + 1, gzi)];
-                c110 = densityBufferOne[CoordToIndex(gxi + 1, gyi + 1, gzi)];
-                c001 = densityBufferOne[CoordToIndex(gxi, gyi, gzi + 1)];
-                c101 = densityBufferOne[CoordToIndex(gxi + 1, gyi, gzi + 1)];
-                c011 = densityBufferOne[CoordToIndex(gxi, gyi + 1, gzi + 1)];
-                c111 = densityBufferOne[CoordToIndex(gxi + 1, gyi + 1, gzi + 1)];
-
-                return
-                    (1 - tx) * (1 - ty) * (1 - tz) * c000 +
-                        tx * (1 - ty) * (1 - tz) * c100 +
-                            (1 - tx) * ty * (1 - tz) * c010 +
-                                tx * ty * (1 - tz) * c110 +
-                                    (1 - tx) * (1 - ty) * tz * c001 +
-                                        tx * (1 - ty) * tz * c101 +
-                                            (1 - tx) * ty * tz * c011 +
-                                                tx * ty * tz * c111;
-            }
             
             float LightMarch(float3 pos)
             {
+                float3 origin3 = float3(origin, origin, origin);
                 // float3 dirToLight = normalize(_WorldSpaceLightPos0);
                 float3 lightPos;
                 if (fixedLight)
@@ -157,7 +115,8 @@ Shader "Custom/VolumeRenderer"
                 if (!fixedLight)
                 {
                     range = lenToLight;
-                } else
+                }
+                else
                 {
                     range = 1000;
                 }
@@ -165,19 +124,18 @@ Shader "Custom/VolumeRenderer"
                 while (traveled < range)
                 {
                     float3 pt = pos + dirToLight * traveled;
-                    float3 uvw = pt / gridSize / gridToWorld;
+                    float3 uvw = pt / gridSize;
                     
                     totalDensity += Grid.SampleLevel(samplerGrid, uvw, 0).x;
                     traveled += stepSize;
                     
                     // want higher light resolution closer to light
-                    stepSize += 0.05;
-                    if (traveled > radius){break;}
+                    stepSize += 0.1;
+                    if (length(pt - origin3) > radius){break;}
                 }
-                return exp(-totalDensity * sigma_b);
+                return 0.005 + exp(-totalDensity * sigma_b) * (1 - 0.005);
             }
             
-
             float4 frag(v2f id) : SV_Target
             {
                 // get ray
@@ -197,18 +155,19 @@ Shader "Custom/VolumeRenderer"
                 // stop ray at depth
                 float range = min(depth, maxRange);
 
-                float stepSize = 5;
+                float stepSize = 4;
                 
                 float distanceTraveled = 0;
                 float transmittence = 1;
                 float lighting = 0;
 
                 float3 rayPos;
-                float scale = gridSize * gridToWorld;
+                float scale = gridSize;
 
                 float3 lightPos;
                 lightPos = _WorldSpaceLightPos0;
                 phaseValue = phase(dot(rayDir, lightPos));
+
 
                 // rendersphere
                 
@@ -222,18 +181,10 @@ Shader "Custom/VolumeRenderer"
                         continue;
                     }
 
-                    float3 samplePos = rayPos / scale;
+                    float3 samplePos = (rayPos + float3(1,1,1) * positionOffset) / scale;
 
-
-                    float density;
-                    if (samplePos.x < 0 || samplePos.x > 1 || samplePos.y < 0 || samplePos.y > 1 || samplePos.z < 0 || samplePos.z > 1)
-                    {
-                        density = 0;
-                    }
-                    else
-                    {
-                        density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
-                    }
+                    float density = 0;
+                    density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
                     
                     if (density > 0)
                     {

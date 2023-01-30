@@ -68,6 +68,12 @@ Shader "Custom/VolumeRenderer"
             // render sphere
             float origin;
             float radius;;
+
+            struct PointSet
+            {
+                float3 p0;
+                float3 p1;
+            };
                     
             float remap(float v, float minOld, float maxOld, float minNew, float maxNew) {
                 return minNew + (v-minOld) * (maxNew - minNew) / (maxOld-minOld);
@@ -87,6 +93,31 @@ Shader "Custom/VolumeRenderer"
             float phase(float a)
             {
                 return hg(a, asymmetryPhaseFactor);
+            }
+
+            PointSet GetPoints(float3 pos, float3 dir)
+            {
+                PointSet points;
+                float3 origin3 = float3(origin, origin, origin);
+                float3 u = origin - pos;
+                float3 normalDir = normalize(dir);
+                float x = dot(normalDir, u);
+                float3 B = normalDir * x - origin;
+
+                float lB = length(B);
+                if (lB >= radius)
+                {
+                    points.p0 = 0;
+                    points.p1 = 0;
+                    return points;
+                }
+
+                float a = sqrt(radius * radius - lB * lB);
+
+                points.p0 = normalDir * (x - a);
+                points.p1 = normalDir * (x + a);
+
+                return points;
             }
             
             float LightMarch(float3 pos)
@@ -108,7 +139,6 @@ Shader "Custom/VolumeRenderer"
                 float lenToLight = length(lightVector);
 
                 float stepSize = 0.05;
-                float traveled = 0;
                 float totalDensity = 0;
                 float range;
 
@@ -121,6 +151,8 @@ Shader "Custom/VolumeRenderer"
                     range = 1000;
                 }
 
+                // light march
+                float traveled = 0;
                 while (traveled < range)
                 {
                     float3 pt = pos + dirToLight * traveled;
@@ -168,7 +200,10 @@ Shader "Custom/VolumeRenderer"
                 lightPos = _WorldSpaceLightPos0;
                 phaseValue = phase(dot(rayDir, lightPos));
 
+                // get points p0 and p1
+                PointSet points = GetPoints(entry, rayDir);
 
+                distanceTraveled = 0;
                 // rendersphere
                 
                 while (distanceTraveled < range)

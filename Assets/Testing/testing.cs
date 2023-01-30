@@ -62,6 +62,7 @@ public class testing : MonoBehaviour
         float p0l = x - a;
         float p1l = x + a;
         Debug.DrawRay(rayO, v.normalized * p0l, Color.white);
+        
         _p0.transform.position = rayO + v.normalized * p0l;
         _p1.transform.position = rayO + v.normalized * p1l;
         

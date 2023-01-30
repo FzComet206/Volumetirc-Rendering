@@ -8,6 +8,7 @@ public class SimAndRender: MonoBehaviour
 
     private Material activeM;
     [SerializeField] private GameObject cube;
+    [SerializeField] private GameObject fresnel;
 
     // shaders
     [SerializeField] private ComputeShader clouds;
@@ -55,11 +56,13 @@ public class SimAndRender: MonoBehaviour
         tg = gridSize / 4;
         
         // a box
-        cube.transform.localScale = Vector3.one * gridSize;
+        cube.transform.localScale = Vector3.one * gridSize / 2f;
+        fresnel.transform.localScale = Vector3.one * renderSphereRadius * 2;
         foreach (var componentsInChild in cube.GetComponentsInChildren<MeshRenderer>())
         {
             componentsInChild.enabled = false;
         }
+        
     }
 
     private void Update()
@@ -88,7 +91,7 @@ public class SimAndRender: MonoBehaviour
 
     private void CloudRoutine()
     {
-        offset += Time.fixedDeltaTime * 20f;
+        offset += Time.fixedDeltaTime * 30f;
         clouds.SetTexture(0, "Grid", renderGrid);
         clouds.SetInt("gridSize", gridSize);
         clouds.SetFloat("offset", offset);

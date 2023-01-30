@@ -107,7 +107,7 @@ Shader "Custom/VolumeRenderer"
                 float3 dirToLight = normalize(lightVector);
                 float lenToLight = length(lightVector);
 
-                float stepSize = 0.1;
+                float stepSize = 0.05;
                 float traveled = 0;
                 float totalDensity = 0;
                 float range;
@@ -155,7 +155,7 @@ Shader "Custom/VolumeRenderer"
                 // stop ray at depth
                 float range = min(depth, maxRange);
 
-                float stepSize = 4;
+                float stepSize = 5;
                 
                 float distanceTraveled = 0;
                 float transmittence = 1;
@@ -216,7 +216,7 @@ Shader "Custom/VolumeRenderer"
                 }
 
                 float3 background = tex2D(_MainTex, id.uv);
-                float3 cloudColor = lighting * lightColor * 6;
+                float3 cloudColor = lighting * lightColor * 4;
                 float3 color = background * transmittence + cloudColor;
 
                 return float4(color, 0);

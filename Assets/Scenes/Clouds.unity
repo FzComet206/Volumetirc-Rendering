@@ -325,7 +325,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: asymmetryphasefactor
-      value: 0.3
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 315768458, guid: be37f1902c3a2184c98fb679c257dedb, type: 3}
       propertyPath: densitytransmittancestoplimit
@@ -575,6 +575,10 @@ PrefabInstance:
     - target: {fileID: 883272999211173462, guid: f6653a2573d791542861872c2f9381be, type: 3}
       propertyPath: m_Name
       value: Sphere
+      objectReference: {fileID: 0}
+    - target: {fileID: 883272999211173462, guid: f6653a2573d791542861872c2f9381be, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f6653a2573d791542861872c2f9381be, type: 3}

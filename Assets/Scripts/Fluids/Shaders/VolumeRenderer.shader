@@ -148,26 +148,39 @@ Shader "Custom/VolumeRenderer"
                 
                 float3 lightVector = lightPos - pos;
                 float3 dirToLight = normalize(lightVector);
-                float lenToLight = length(lightVector);
 
-                float stepSize = 0.05;
+                float3 exit = GetPoints(pos, dirToLight).p1;
+                
                 float totalDensity = 0;
                 float range;
 
-                range = lenToLight;
+                range = length(exit - pos) - 0.1;
+                
+
+                int stepsPer100Range = 35;
+                int steps = ceil(range / 100.0 * (float) stepsPer100Range);
+                float stepSize = range / (float) steps;
 
                 // light march
                 float traveled = 0;
-                while (traveled < range)
+                for (int i = 0; i < steps; i++)
                 {
                     float3 pt = pos + dirToLight * traveled;
                     float3 uvw = pt / gridSize;
-                    
+
                     totalDensity += Grid.SampleLevel(samplerGrid, uvw, 0).x;
+
+                    if (traveled + stepSize > range)
+                    {
+                        traveled = range;
+                        pt = pos + dirToLight * traveled;
+                        uvw = pt / gridSize;
+                        totalDensity += Grid.SampleLevel(samplerGrid, uvw, 0).x;
+                        break;
+                    }
                     traveled += stepSize;
                     
                     // want higher light resolution closer to light
-                    stepSize += 0.1;
                     if (length(pt - origin3) > radius){break;}
                 }
                 return 0.005 + exp(-totalDensity * sigma_b) * (1 - 0.005);
@@ -205,9 +218,13 @@ Shader "Custom/VolumeRenderer"
                 PointSet points = GetPoints(entry, rayDir);
                 entry = points.p0;
 
-                int steps = 100;
                 float travelDist = length(points.p1 - points.p0);
-                float stepSize = travelDist / 20;
+                
+                int stepsPer100Range = 35;
+                int steps = ceil(travelDist / 100.0 * (float) stepsPer100Range);
+                
+                float stepSize = travelDist / (float) steps;
+                
                 if (travelDist < 0.1) {return float4(background, 0);};
 
                 // rendersphere

@@ -31,7 +31,7 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] float asymmetryphasefactor;
     [SerializeField] float densitytransmittancestoplimit;
     [SerializeField] private bool fixedLight;
-    
+
     private int gridSize = 256;
     private float offset = 0;
     private float positionOffset;
@@ -56,11 +56,11 @@ public class SimAndRender: MonoBehaviour
         tg = gridSize / 4;
         
         // a box
-        cube.transform.localScale = Vector3.one * gridSize / 2f;
+        cube.transform.localScale = Vector3.one * gridSize / 1.5f;
         fresnel.transform.localScale = Vector3.one * renderSphereRadius * 2;
         foreach (var componentsInChild in cube.GetComponentsInChildren<MeshRenderer>())
         {
-            // componentsInChild.enabled = false;
+            componentsInChild.enabled = false;
         }
         
     }

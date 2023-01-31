@@ -71,8 +71,8 @@ Shader "Custom/VolumeRenderer"
 
             struct PointSet
             {
-                float3 p0;
-                float3 p1;
+                float p0;
+                float p1;
             };
                     
             float remap(float v, float minOld, float maxOld, float minNew, float maxNew) {
@@ -98,13 +98,27 @@ Shader "Custom/VolumeRenderer"
             PointSet GetPoints(float3 pos, float3 dir)
             {
                 PointSet points;
+
+                // origin of sphere
                 float3 origin3 = float3(origin, origin, origin);
-                float3 u = origin - pos;
+                float3 u = origin3 - pos;
+                
                 float3 normalDir = normalize(dir);
                 float x = dot(normalDir, u);
-                float3 B = normalDir * x - origin;
+
+                // prevent mirroring
+                if (x < 0)
+                {
+                    points.p0 = 0;
+                    points.p1 = 0;
+                    return points;
+                }
+                
+                float3 B = (pos + normalDir * x) - origin3;
 
                 float lB = length(B);
+
+                // skip if not intersect
                 if (lB >= radius)
                 {
                     points.p0 = 0;
@@ -114,8 +128,8 @@ Shader "Custom/VolumeRenderer"
 
                 float a = sqrt(radius * radius - lB * lB);
 
-                points.p0 = normalDir * (x - a);
-                points.p1 = normalDir * (x + a);
+                points.p0 = x - a;
+                points.p1 = x + a;
 
                 return points;
             }
@@ -173,6 +187,7 @@ Shader "Custom/VolumeRenderer"
                 // get ray
                 float3 origin3 = float3(origin, origin, origin);
                 float3 entry = _WorldSpaceCameraPos;
+                float3 cam = entry;
                 float viewLength = length(id.viewVector);
                 float3 rayDir = id.viewVector / viewLength;
 
@@ -203,10 +218,22 @@ Shader "Custom/VolumeRenderer"
                 // get points p0 and p1
                 PointSet points = GetPoints(entry, rayDir);
 
-                distanceTraveled = 0;
                 // rendersphere
-                
-                while (distanceTraveled < range)
+
+                // if outside of sphere, set entry to p0
+                if (length(origin3 - entry) > radius)
+                {
+                    // adding a slight offset seem to eliminate foggy surface, idk why
+                    entry = cam + rayDir * (points.p0 + 0.01);
+                    range = min(range, points.p1);
+                } else
+                {
+                    // if inside sphere, set range to (p1 - camera position)
+                    range = min(range, length(points.p1 - cam));
+                }
+
+                // start ray marching
+                while (distanceTraveled <= range)
                 {
                     rayPos = entry + rayDir * distanceTraveled;
 
@@ -218,8 +245,7 @@ Shader "Custom/VolumeRenderer"
 
                     float3 samplePos = (rayPos + float3(1,1,1) * positionOffset) / scale;
 
-                    float density = 0;
-                    density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
+                    float density = Grid.SampleLevel(samplerGrid, samplePos, 0).x;
                     
                     if (density > 0)
                     {
@@ -247,6 +273,7 @@ Shader "Custom/VolumeRenderer"
                             break;
                         }
                     }
+
                     distanceTraveled += stepSize;
                 }
 

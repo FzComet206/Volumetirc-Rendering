@@ -60,7 +60,7 @@ public class SimAndRender: MonoBehaviour
         fresnel.transform.localScale = Vector3.one * renderSphereRadius * 2;
         foreach (var componentsInChild in cube.GetComponentsInChildren<MeshRenderer>())
         {
-            componentsInChild.enabled = false;
+            // componentsInChild.enabled = false;
         }
         
     }

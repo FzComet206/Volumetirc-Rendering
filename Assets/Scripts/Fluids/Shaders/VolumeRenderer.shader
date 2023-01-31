@@ -71,8 +71,8 @@ Shader "Custom/VolumeRenderer"
 
             struct PointSet
             {
-                float p0;
-                float p1;
+                float3 p0;
+                float3 p1;
             };
                     
             float remap(float v, float minOld, float maxOld, float minNew, float maxNew) {
@@ -107,10 +107,10 @@ Shader "Custom/VolumeRenderer"
                 float x = dot(normalDir, u);
 
                 // prevent mirroring
-                if (x < 0)
+                if (x < 0 && length(pos - origin3) > radius)
                 {
-                    points.p0 = 0;
-                    points.p1 = 0;
+                    points.p0 = float3(0,0,0);
+                    points.p1 = float3(0,0,0);
                     return points;
                 }
                 
@@ -121,15 +121,20 @@ Shader "Custom/VolumeRenderer"
                 // skip if not intersect
                 if (lB >= radius)
                 {
-                    points.p0 = 0;
-                    points.p1 = 0;
+                    points.p0 = float3(0,0,0);
+                    points.p1 = float3(0,0,0);
                     return points;
                 }
 
                 float a = sqrt(radius * radius - lB * lB);
 
-                points.p0 = x - a;
-                points.p1 = x + a;
+                points.p0 = pos + dir * (x - a + 0.5);
+                points.p1 = pos + dir * (x + a - 0.5);
+                
+                if (length(pos - origin3) < radius)
+                {
+                    points.p0 = pos;
+                }
 
                 return points;
             }
@@ -139,14 +144,7 @@ Shader "Custom/VolumeRenderer"
                 float3 origin3 = float3(origin, origin, origin);
                 // float3 dirToLight = normalize(_WorldSpaceLightPos0);
                 float3 lightPos;
-                if (fixedLight)
-                {
-                    lightPos = _WorldSpaceLightPos0;
-                }
-                else
-                {
-                    lightPos = float3(lightX, lightY, lightZ);
-                }
+                lightPos = float3(lightX, lightY, lightZ);
                 
                 float3 lightVector = lightPos - pos;
                 float3 dirToLight = normalize(lightVector);
@@ -156,14 +154,7 @@ Shader "Custom/VolumeRenderer"
                 float totalDensity = 0;
                 float range;
 
-                if (!fixedLight)
-                {
-                    range = lenToLight;
-                }
-                else
-                {
-                    range = 1000;
-                }
+                range = lenToLight;
 
                 // light march
                 float traveled = 0;
@@ -184,10 +175,9 @@ Shader "Custom/VolumeRenderer"
             
             float4 frag(v2f id) : SV_Target
             {
+                float3 background = tex2D(_MainTex, id.uv);
                 // get ray
-                float3 origin3 = float3(origin, origin, origin);
-                float3 entry = _WorldSpaceCameraPos;
-                float3 cam = entry;
+                float3 cam = _WorldSpaceCameraPos;
                 float viewLength = length(id.viewVector);
                 float3 rayDir = id.viewVector / viewLength;
 
@@ -201,10 +191,7 @@ Shader "Custom/VolumeRenderer"
                 
                 // stop ray at depth
                 float range = min(depth, maxRange);
-
-                float stepSize = 5;
                 
-                float distanceTraveled = 0;
                 float transmittence = 1;
                 float lighting = 0;
 
@@ -212,36 +199,25 @@ Shader "Custom/VolumeRenderer"
                 float scale = gridSize;
 
                 float3 lightPos;
-                lightPos = _WorldSpaceLightPos0;
-                phaseValue = phase(dot(rayDir, lightPos));
 
                 // get points p0 and p1
+                float3 entry = cam;
                 PointSet points = GetPoints(entry, rayDir);
+                entry = points.p0;
+
+                int steps = 100;
+                float travelDist = length(points.p1 - points.p0);
+                float stepSize = travelDist / 20;
+                if (travelDist < 0.1) {return float4(background, 0);};
 
                 // rendersphere
 
-                // if outside of sphere, set entry to p0
-                if (length(origin3 - entry) > radius)
-                {
-                    // adding a slight offset seem to eliminate foggy surface, idk why
-                    entry = cam + rayDir * (points.p0 + 0.01);
-                    range = min(range, points.p1);
-                } else
-                {
-                    // if inside sphere, set range to (p1 - camera position)
-                    range = min(range, length(points.p1 - cam));
-                }
-
                 // start ray marching
-                while (distanceTraveled <= range)
+                for (int i = 0; i < steps; i++)
                 {
-                    rayPos = entry + rayDir * distanceTraveled;
-
-                    if (length(rayPos - origin3) > radius)
-                    {
-                        distanceTraveled += stepSize;
-                        continue;
-                    }
+                    if (length(entry - cam) > range) {break;}
+                    
+                    rayPos = entry;
 
                     float3 samplePos = (rayPos + float3(1,1,1) * positionOffset) / scale;
 
@@ -253,11 +229,8 @@ Shader "Custom/VolumeRenderer"
                         // marching light
                         float lightTransmittance = LightMarch(rayPos);
 
-                        if (!fixedLight)
-                        {
-                            lightPos = float3(lightX, lightY, lightZ);
-                            phaseValue = phase(dot(rayDir, normalize(lightPos - rayPos)));
-                        }
+                        lightPos = float3(lightX, lightY, lightZ);
+                        phaseValue = phase(dot(rayDir, normalize(lightPos - rayPos)));
                         
                         lighting +=
                             density * stepSize * transmittence * lightTransmittance * phaseValue;
@@ -274,10 +247,9 @@ Shader "Custom/VolumeRenderer"
                         }
                     }
 
-                    distanceTraveled += stepSize;
+                    entry = entry + rayDir * stepSize;
                 }
 
-                float3 background = tex2D(_MainTex, id.uv);
                 float3 cloudColor = lighting * lightColor * 4;
                 float3 color = background * transmittence + cloudColor;
 

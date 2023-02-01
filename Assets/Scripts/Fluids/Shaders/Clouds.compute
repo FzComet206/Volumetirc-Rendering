@@ -37,7 +37,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     float domainWrap = Fbm(posD / 50) * 30;
     
-    float n = Fbm((pos += domainWrap) / 125) - 0.2;
+    float n = Fbm((pos += domainWrap) / 90) - 0.2;
     n = min(1, max(0, n));
     Grid[id.xyz] = float4(n, 0, 0, 0);
 }

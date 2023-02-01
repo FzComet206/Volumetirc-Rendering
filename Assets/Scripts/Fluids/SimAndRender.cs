@@ -8,6 +8,7 @@ public class SimAndRender: MonoBehaviour
 
     private Material activeM;
     [SerializeField] private GameObject cube;
+    [SerializeField] private GameObject cube1;
     [SerializeField] private GameObject fresnel;
 
     // shaders
@@ -25,6 +26,7 @@ public class SimAndRender: MonoBehaviour
     private Vector3 lightPosition;
     [Header("VolumeRendering Input")]
     [SerializeField] Color lightColor;
+    [SerializeField] Color lightColorLow;
     [SerializeField] [Range(500, 3000)] int maxRange;
     [SerializeField] float sigma_a;
     [SerializeField] float sigma_b;
@@ -57,12 +59,12 @@ public class SimAndRender: MonoBehaviour
         
         // a box
         cube.transform.localScale = Vector3.one * gridSize / 1.5f;
+        cube1.transform.localScale = Vector3.one * gridSize * 3;
         fresnel.transform.localScale = Vector3.one * renderSphereRadius * 2;
         foreach (var componentsInChild in cube.GetComponentsInChildren<MeshRenderer>())
         {
-            componentsInChild.enabled = false;
+            componentsInChild.GetComponent<MeshRenderer>().enabled = false;
         }
-        
     }
 
     private void Update()
@@ -91,7 +93,7 @@ public class SimAndRender: MonoBehaviour
 
     private void CloudRoutine()
     {
-        offset += Time.fixedDeltaTime * 30f;
+        offset += Time.fixedDeltaTime * 40f;
         clouds.SetTexture(0, "Grid", renderGrid);
         clouds.SetInt("gridSize", gridSize);
         clouds.SetFloat("offset", offset);
@@ -111,7 +113,8 @@ public class SimAndRender: MonoBehaviour
         
         volumeMaterial.SetInt("gridSize", gridSize);
         
-        volumeMaterial.SetColor("lightColor", lightColor);
+        volumeMaterial.SetColor("lightColor0", lightColorLow);
+        volumeMaterial.SetColor("lightColor1", lightColor);
         volumeMaterial.SetInt("maxRange", maxRange);
         
         volumeMaterial.SetFloat("sigma_a", sigma_a);

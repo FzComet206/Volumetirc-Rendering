@@ -17,7 +17,7 @@ public class LightMove : MonoBehaviour
 
         _collider.radius = radius;
         velocity = new Vector3(Random.Range(-10, 10), Random.Range(-10, 10), Random.Range(-10, 10)).normalized * speed *
-                   Time.fixedDeltaTime;
+                   Time.deltaTime;
     }
 
     private void FixedUpdate()

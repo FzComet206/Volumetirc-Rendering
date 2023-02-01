@@ -57,7 +57,8 @@ Shader "Custom/VolumeRenderer"
             float lightY;
             float lightZ;
             
-            float4 lightColor;
+            float4 lightColor0;
+            float4 lightColor1;
             int maxRange;
             float sigma_a;
             float sigma_b;
@@ -128,8 +129,8 @@ Shader "Custom/VolumeRenderer"
 
                 float a = sqrt(radius * radius - lB * lB);
 
-                points.p0 = pos + dir * (x - a + 0.5);
-                points.p1 = pos + dir * (x + a - 0.5);
+                points.p0 = pos + dir * (x - a + 2);
+                points.p1 = pos + dir * (x + a - 2);
                 
                 if (length(pos - origin3) < radius)
                 {
@@ -156,8 +157,7 @@ Shader "Custom/VolumeRenderer"
 
                 range = length(exit - pos) - 0.1;
                 
-
-                int stepsPer100Range = 35;
+                int stepsPer100Range = 30;
                 int steps = ceil(range / 100.0 * (float) stepsPer100Range);
                 float stepSize = range / (float) steps;
 
@@ -170,14 +170,6 @@ Shader "Custom/VolumeRenderer"
 
                     totalDensity += Grid.SampleLevel(samplerGrid, uvw, 0).x;
 
-                    if (traveled + stepSize > range)
-                    {
-                        traveled = range;
-                        pt = pos + dirToLight * traveled;
-                        uvw = pt / gridSize;
-                        totalDensity += Grid.SampleLevel(samplerGrid, uvw, 0).x;
-                        break;
-                    }
                     traveled += stepSize;
                     
                     // want higher light resolution closer to light
@@ -220,7 +212,7 @@ Shader "Custom/VolumeRenderer"
 
                 float travelDist = length(points.p1 - points.p0);
                 
-                int stepsPer100Range = 35;
+                int stepsPer100Range = 30;
                 int steps = ceil(travelDist / 100.0 * (float) stepsPer100Range);
                 
                 float stepSize = travelDist / (float) steps;
@@ -267,7 +259,12 @@ Shader "Custom/VolumeRenderer"
                     entry = entry + rayDir * stepSize;
                 }
 
-                float3 cloudColor = lighting * lightColor * 4;
+                float3 lightColor;
+                lightColor.x = remap(transmittence, 0, 0.5, lightColor1.x, lightColor0.x);
+                lightColor.y = remap(transmittence, 0, 0.5, lightColor1.y, lightColor0.y);
+                lightColor.z = remap(transmittence, 0, 0.5, lightColor1.z, lightColor0.z);
+                
+                float3 cloudColor = lighting * lightColor * 3;
                 float3 color = background * transmittence + cloudColor;
 
                 return float4(color, 0);

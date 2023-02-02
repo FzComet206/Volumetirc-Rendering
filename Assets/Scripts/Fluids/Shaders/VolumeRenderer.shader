@@ -161,22 +161,23 @@ Shader "Custom/VolumeRenderer"
                 int steps = ceil(range / 100.0 * (float) stepsPer100Range);
                 float stepSize = range / (float) steps;
 
+
+                
                 // light march
                 float traveled = 0;
                 for (int i = 0; i < steps; i++)
                 {
                     float3 pt = pos + dirToLight * traveled;
                     float3 uvw = pt / gridSize;
-
                     totalDensity += Grid.SampleLevel(samplerGrid, uvw, 0).x;
-
                     traveled += stepSize;
-                    
-                    // want higher light resolution closer to light
-                    if (length(pt - origin3) > radius){break;}
                 }
+                
                 return 0.005 + exp(-totalDensity * sigma_b) * (1 - 0.005);
             }
+
+            
+
             
             float4 frag(v2f id) : SV_Target
             {
@@ -212,7 +213,7 @@ Shader "Custom/VolumeRenderer"
 
                 float travelDist = length(points.p1 - points.p0);
                 
-                int stepsPer100Range = 30;
+                int stepsPer100Range = 50;
                 int steps = ceil(travelDist / 100.0 * (float) stepsPer100Range);
                 
                 float stepSize = travelDist / (float) steps;
@@ -222,7 +223,7 @@ Shader "Custom/VolumeRenderer"
                 // rendersphere
 
                 // start ray marching
-                for (int i = 0; i < steps; i++)
+                for (int i = 0 ; i < steps; i++)
                 {
                     if (length(entry - cam) > range) {break;}
                     

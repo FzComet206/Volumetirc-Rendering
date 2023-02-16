@@ -1,6 +1,8 @@
 # Volumetric Rendering
 
+https://user-images.githubusercontent.com/24278214/216487840-55d112b2-dcc6-4319-a852-b059c86c2a53.mp4
 
+---
 
 ## Motivations
 

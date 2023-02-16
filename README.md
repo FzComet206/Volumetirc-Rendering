@@ -28,7 +28,19 @@ So how does Ray Marching works? I have recently played with ChatGPT and feel lik
 
 ## Ray sphere intersection
 
-Before we get into the method. I first have to define a volume. In this project, i used a sphere. Data inside the sphere are being rendered, while the others are ignored.
+Before we get into the method. I first have to define a volume. In this project, i used a sphere. Data inside the sphere are being rendered, while the others are ignored. Defining a volume might not be entirely necessary in Unity engine, but there are benefits. Let's say i have a screen resolution of 2560 x 1440, i will have to shoot a ray for each pixel on the screen into the world space. Each ray is defined by a starting postion and a direction. If i define a volume in space, such as a sphere, i can write an intersection function and only calculate those rays that intersect the volume, which would save a lot of performance. The other benefit of defining a volume is to prevent stripe like pattern on the edge of the rendered object.
+
+Defining a sphere is as simple as it gets. All we need to do is pass a center and a radius into the shader. Now, given a sphere center, sphere radius, ray origin, and ray direction, we will need to find two points that the ray intersect the sphere. It's important to point out that there are three cases of intersection: Ray starting from outside of sphere and intersect the sphere (two intersection point), ray starting fro inside of the sphere and intersect the sphere (one intersection point), and ray starting outside of sphere and missed the sphere (zero intersection point)
+
+
+Case One (Two intersection points)
+Images
+
+Case Two (One intersection point)
+Images
+
+Case Three (no intersection point)
+Images
 
 ---
 ## Ray Marching.

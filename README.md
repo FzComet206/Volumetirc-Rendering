@@ -21,23 +21,32 @@ So how does Ray Marching works? I have recently played with ChatGPT and feel lik
 
 ---
 
-## How i used Ray Marching.
+## Ray sphere intersection
 
+Before we get into the method. I first have to define a volume. In this project, i used a sphere. Data inside the sphere are being rendered, while the others are ignored.
 
 ---
-ray sphere intersection
-image
+## Ray Marching.
 
-march toward density field
-image
+In this project, i used a 3D texture to store Simplex noise values. The noise was modified using fractals, domain wrapping, and scrolling. This noise is later sampled using Unity's built in texture trilinear sampling, so the result isn't pixalated.
 
-march towerd light
-image
+In general, the Ray Marching work as follows:
 
-beers law
-image
+- Calculate the distance between Point A and Point B from the Ray Sphere intersection function. 
 
-blending colors
-image
+- Define a ratio of steps/distance, for example 40 steps/ 100 distance (wordspace coordinate). 
 
-notes
+- Calculate the number of steps and step size in between Point A and Point B.
+
+- For each steps, starting from point A, increment the position by ray direction * stepsize. Sample density value at each step. If the density is larger than zero, run the LightMarch function and calculate other lighting parameters.
+
+
+code snippets march toward density field
+
+code snippets march towerd light
+
+## Calculate Transparency and Beer's Law
+
+## Blending Colors. 
+
+## Additional Notes 

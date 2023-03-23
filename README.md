@@ -43,6 +43,15 @@ Case Three (no intersection point)
 Images
 
 ---
+Below is the function that calculates the intersection points
+![getpoints](images/getpoints.png)
+
+## additional notes regarding why sphere intersection code is necessary
+
+## Calculate Transparency and Beer's Law
+
+---
+
 ## Ray Marching.
 
 In this project, i used a 3D texture to store Simplex noise values. The noise was modified using fractals, domain wrapping, and scrolling. This noise is later sampled using Unity's built in texture trilinear sampling, so the result isn't pixalated.
@@ -57,13 +66,13 @@ In general, the Ray Marching work as follows:
 
 - For each steps, starting from point A, increment the position by ray direction * stepsize. Sample density value at each step. If the density is larger than zero, run the LightMarch function and calculate other lighting parameters.
 
+Below is the main loop of the ray marching implementation, inside the fragment shader
 
-code snippets march toward density field
+---
 
-code snippets march towerd light
+![mainloop](images/MainLoop.png)
 
-## Calculate Transparency and Beer's Law
+Below is the LightMarch funtion
+
 
 ## Blending Colors. 
-
-## Additional Notes 

@@ -68,7 +68,7 @@ In general, the Ray Marching work as follows:
 
 - Calculate the distance between Point A and Point B from the Ray Sphere intersection function. 
 
-- Define a ratio of steps/distance, for example 40 steps/ 100 distance (wordspace coordinate). 
+- Define a ratio of steps/distance, for example 40 steps/ 100 distance (world space coordinate). 
 
 - Calculate the number of steps and step size in between Point A and Point B.
 

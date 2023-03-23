@@ -105,3 +105,6 @@ Finally i want to add some color blending to "volume sphere" that i rendered. By
 
 #
 ![blend](images/blend.png)
+
+Which lead to the final result
+![final](images/final.png)

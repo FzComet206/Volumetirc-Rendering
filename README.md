@@ -30,34 +30,19 @@ So how does Ray Marching works? I have recently played with ChatGPT and feel lik
 ## Ray sphere intersection
 ---
 
-Before we get into the method. I first have to define a volume. In this project, i used a sphere. Data inside the sphere are being rendered, while the others are ignored. Defining a volume might not be entirely necessary in Unity engine, but there are benefits. Let's say i have a screen resolution of 2560 x 1440, i will have to shoot a ray for each pixel on the screen into the world space. Each ray is defined by a starting postion and a direction. If i define a volume in space, such as a sphere, i can write an intersection function and only calculate those rays that intersect the volume, which would save a lot of performance. The other benefit of defining a volume is to prevent stripe like pattern on the edge of the rendered object.
+Before we get into the method. I first have to define a volume. In this project, i used a sphere. Data inside the sphere are being rendered, while the others are ignored. Defining a volume might not be entirely necessary, but there are benefits. Let's say i have a screen resolution of 2560 x 1440, i will have to shoot a ray for each pixel on the screen into the world space. Each ray is defined by a starting postion and a direction. If i define a volume in space, such as a sphere, i can write an intersection function and only calculate those rays that intersect the volume, which would save a lot of performance. Defining a volume can also make the implementation cleaner.
 
-Defining a sphere is as simple as it gets. All we need to do is pass a center and a radius into the shader. Now, given a sphere center, sphere radius, ray origin, and ray direction, we will need to find two points that the ray intersect the sphere. It's important to point out that there are three cases of intersection: Ray starting from outside of sphere and intersect the sphere (two intersection point), ray starting fro inside of the sphere and intersect the sphere (one intersection point), and ray starting outside of sphere and missed the sphere (zero intersection point)
+Defining a sphere is as simple as it gets. All we need to do is pass a center and a radius into the shader. Now, given a sphere center, sphere radius, ray origin, and ray direction, we will need to find two points that the ray intersect the sphere. It's important to point out that there are three cases of intersection: Ray starting from outside of sphere and intersect the sphere (two intersection point), ray starting from inside of the sphere and intersect the sphere (one intersection point), and ray starting outside of sphere and missed the sphere (zero intersection point)
 
 
-Case One (Two intersection points)
+Diagram:
 #
-![case one](images/caseone.png)
-
-Case Two (One intersection point)
-#
-![case two](images/casetwo.png)
-
-Case Three (no intersection point)
-#
-![case three](images/casethree.png)
+![raysphere](images/raysphere.png)
 
 #
 Below is the function that calculates the intersection points
 ![getpoints](images/getpoints.png)
 
-## Why should i use sphere (or any type of volume) intersection?
----
-
-Marching a ray toward a direction and calculating the total transparancy might just be enough for this project, so why is the ray sphere intersection function necessary? In my implementation of the ray marching, the ray is marched at a fixed step-size. If I just start the ray at the position of the camera and shoot them toward a density field, the output will produce a stripe like pattern that is not ideal. However, if i use a sphere intersection function to determine a specific entry and exit point for each ray, the striple like pattern will disappear. I will demonstrate this concept with a image below.
-
-#
-![RaySphere](images/raysphere.png)
 
 ## Calculate Transparency and Beer's Law
 ---
@@ -66,9 +51,9 @@ Next step is to consider Beer-Lambert's law. This law models the atteunation of 
 #
 ![Beer](images/beer.png)
 
-## Apply phase angle
+## Phase Function
 ---
-There are many ways for light to scatter in a medium. Clouds in real life are more toward back scattering, such that when you see sun behind a piece of thinner cloud, you can still see the dimmed outline of the sun. Some mediums are more like forward scattering, where most of the light is scattered in the direction of light. To apply this forward backward scattering, we use a phase function below.
+There are many ways for light to scatter in a medium. Clouds in real life are more like back scattering, while some mediums are more like forward scattering, where most of the light is scattered in the direction of light. To apply this forward/backward scattering, we use a phase function.
 
 #
 ![phase](images/phase.png)

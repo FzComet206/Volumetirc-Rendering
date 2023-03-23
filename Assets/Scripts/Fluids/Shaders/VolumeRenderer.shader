@@ -143,7 +143,6 @@ Shader "Custom/VolumeRenderer"
             float LightMarch(float3 pos)
             {
                 float3 origin3 = float3(origin, origin, origin);
-                // float3 dirToLight = normalize(_WorldSpaceLightPos0);
                 float3 lightPos;
                 lightPos = float3(lightX, lightY, lightZ);
                 
@@ -244,8 +243,8 @@ Shader "Custom/VolumeRenderer"
                         
                         lighting +=
                             density * stepSize * transmittence * lightTransmittance * phaseValue;
-                            // density * stepSize * transmittence;
-                        // update transmittance
+
+                        // update transmittance and apply beer's law
                         transmittence *= exp(-density * stepSize * sigma_a);
 
 

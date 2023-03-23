@@ -64,6 +64,11 @@ There are many ways for light to scatter in a medium. Clouds in real life are mo
 
 In this project, i used a 3D texture to store Simplex noise values. The noise was modified using fractals, domain wrapping, and scrolling. This noise is later sampled using Unity's built in texture trilinear sampling, so the result isn't pixalated.
 
+
+Raymarching in a nutshell:
+#
+![raymarching](images/nutshell.png)
+
 In general, the Ray Marching work as follows:
 
 - Calculate the distance between Point A and Point B from the Ray Sphere intersection function. 
@@ -72,7 +77,9 @@ In general, the Ray Marching work as follows:
 
 - Calculate the number of steps and step size in between Point A and Point B.
 
-- For each steps, starting from point A, increment the position by ray direction * stepsize. Sample density value at each step. If the density is larger than zero, run the LightMarch function and calculate other lighting parameters.
+- For each steps, starting from point A, increment the position by ray direction * stepsize. Sample density value at each step. If the density is larger than zero, shoot another ray toward light and calculate and again sample density at each step.
+
+
 
 Below is the main loop of the ray marching implementation, inside the fragment shader
 

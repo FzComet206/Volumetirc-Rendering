@@ -5,6 +5,8 @@ public class Controls : MonoBehaviour
 {
     private GameObject sceneUI;
     
+    
+    
     // Start is called before the first frame update
     [SerializeField] InputAction cruise;
     [SerializeField] InputAction mouse;

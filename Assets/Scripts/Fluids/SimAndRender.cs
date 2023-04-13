@@ -45,6 +45,9 @@ public class SimAndRender: MonoBehaviour
     
     private void Start()
     {
+    
+        
+        
         Application.targetFrameRate = 144;
         cam = GetComponent<Camera>();
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;

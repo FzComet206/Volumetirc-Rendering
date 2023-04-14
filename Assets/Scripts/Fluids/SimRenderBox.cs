@@ -1,15 +1,14 @@
 using UnityEngine;
 using UnityEngine.Rendering;
 
-public class SimAndRender: MonoBehaviour
+public class SimRenderBox : MonoBehaviour
 {
     private GameObject sceneUI;
     private Camera cam;
 
     private Material activeM;
-    [SerializeField] private GameObject cube;
     [SerializeField] private GameObject cube1;
-    [SerializeField] private GameObject fresnel;
+    [SerializeField] private GameObject box;
 
     // shaders
     [SerializeField] private ComputeShader clouds;
@@ -34,17 +33,26 @@ public class SimAndRender: MonoBehaviour
     [SerializeField] float densitytransmittancestoplimit;
     [SerializeField] private bool fixedLight;
 
-    private int gridSize = 256;
+    private int gridX = 64;
+    private int gridY = 256;
+    private int gridZ = 256;
+    private float positionOffsetX;
+    private float positionOffsetY;
+    private float positionOffsetZ;
+    private int tgX;
+    private int tgY;
+    private int tgZ;
+    
     private float offset = 0;
-    private float positionOffset;
-    private int tg;
     
     // render sphere
-    private float renderSphereRadius;
-    private float renderSphereOrigin;
+    private BoxCollider renderCollider;
+    private ComputeBuffer cp;
     
     private void Start()
     {
+        renderCollider = box.GetComponent<BoxCollider>();
+        cp = new ComputeBuffer(9, sizeof(float));
         Application.targetFrameRate = 144;
         cam = GetComponent<Camera>();
         sceneUI = Resources.FindObjectsOfTypeAll<SceneUI>()[0].gameObject;
@@ -52,30 +60,49 @@ public class SimAndRender: MonoBehaviour
         
         InitTextureCloud();
 
-        renderSphereOrigin = 0;
-        renderSphereRadius = gridSize / 2.1f;
-        positionOffset = gridSize / 2f;
-        tg = gridSize / 4;
+        positionOffsetX = gridX / 2f;
+        positionOffsetY = gridY / 2f;
+        positionOffsetZ = gridZ / 2f;
+        
+        tgX = gridX / 4;
+        tgY = gridY / 4;
+        tgZ = gridZ / 4;
         
         // a box
-        cube.transform.localScale = Vector3.one * gridSize / 1.5f;
-        cube1.transform.localScale = Vector3.one * gridSize * 3;
-        fresnel.transform.localScale = Vector3.one * renderSphereRadius * 2;
-        foreach (var componentsInChild in cube.GetComponentsInChildren<MeshRenderer>())
-        {
-            componentsInChild.GetComponent<MeshRenderer>().enabled = false;
-        }
+        cube1.transform.localScale = Vector3.one * gridZ;
     }
 
     private void Update()
     {
         lightPosition = lightOne.position;
         lightOne.gameObject.SetActive(!fixedLight);
+        UpdateBound();
     }
 
     private void FixedUpdate()
     {
         CloudRoutine();
+    }
+
+    private void UpdateBound()
+    {
+        Bounds b = renderCollider.bounds;
+        
+        float[] bounds = new float[9];
+        
+        bounds[0] = b.center.x;
+        bounds[1] = b.center.y;
+        bounds[2] = b.center.z;
+
+        bounds[3] = b.min.x;
+        bounds[4] = b.min.y;
+        bounds[5] = b.min.z;
+        
+        bounds[6] = b.max.x;
+        bounds[7] = b.max.y;
+        bounds[8] = b.max.z;
+        
+        cp.SetData(bounds);
     }
 
     private void OnRenderImage(RenderTexture src, RenderTexture dest)
@@ -95,23 +122,26 @@ public class SimAndRender: MonoBehaviour
     {
         offset += Time.fixedDeltaTime * 40f;
         clouds.SetTexture(0, "Grid", renderGrid);
-        clouds.SetInt("gridSize", gridSize);
         clouds.SetFloat("offset", offset);
-        clouds.Dispatch(0, tg, tg, tg);
+        clouds.Dispatch(0, tgX, tgY, tgZ);
     }
 
     private void SetRenderInput()
     {
         UpdateMaterial();
-        volumeMaterial.SetFloat("origin", renderSphereOrigin);
-        volumeMaterial.SetFloat("radius", renderSphereRadius);
+        volumeMaterial.SetBuffer("bounds", cp);
         
         volumeMaterial.SetFloat("lightX", lightPosition.x);
         volumeMaterial.SetFloat("lightY", lightPosition.y);
         volumeMaterial.SetFloat("lightZ", lightPosition.z);
-        volumeMaterial.SetFloat("positionOffset", positionOffset);
         
-        volumeMaterial.SetInt("gridSize", gridSize);
+        volumeMaterial.SetFloat("positionOffsetX", positionOffsetX);
+        volumeMaterial.SetFloat("positionOffsetY", positionOffsetY);
+        volumeMaterial.SetFloat("positionOffsetZ", positionOffsetZ);
+        
+        volumeMaterial.SetInt("gridSizeX", gridX);
+        volumeMaterial.SetInt("gridSizeY", gridY);
+        volumeMaterial.SetInt("gridSizeZ", gridZ);
         
         volumeMaterial.SetColor("lightColor0", lightColorLow);
         volumeMaterial.SetColor("lightColor1", lightColor);
@@ -128,7 +158,7 @@ public class SimAndRender: MonoBehaviour
     
     private void InitTextureCloud()
     {
-        renderGrid = InitTexture(gridSize, RenderTextureFormat.R16, TextureWrapMode.Mirror);
+        renderGrid = InitTexture(RenderTextureFormat.R16, TextureWrapMode.Mirror);
     }
 
     private void OnDestroy()
@@ -136,13 +166,13 @@ public class SimAndRender: MonoBehaviour
         Destroy(renderGrid);
     }
 
-    RenderTexture InitTexture(int size, RenderTextureFormat format, TextureWrapMode wrap = TextureWrapMode.Clamp)
+    RenderTexture InitTexture(RenderTextureFormat format, TextureWrapMode wrap = TextureWrapMode.Clamp)
     {
         RenderTexture rt;
-        rt= new RenderTexture(size, size, 0);
+        rt= new RenderTexture(gridX, gridY, 0);
         rt.dimension = TextureDimension.Tex3D;
         rt.filterMode = FilterMode.Trilinear;
-        rt.volumeDepth = gridSize;
+        rt.volumeDepth = gridZ;
         rt.format = format;
         rt.wrapMode = wrap;
         rt.enableRandomWrite = true;

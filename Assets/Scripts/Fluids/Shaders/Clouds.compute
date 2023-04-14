@@ -3,13 +3,7 @@
 
 RWTexture3D<float4> Grid;
 
-int gridSize;
 float offset;
-
-int CoordToIndex(uint3 id)
-{
-    return gridSize * gridSize * id.x + gridSize * id.y + id.z;
-}
 
 float Fbm(float3 x)
 {
@@ -35,9 +29,9 @@ void CSMain (uint3 id : SV_DispatchThreadID)
     float3 posD = float3((float) id.x + 4321, (float) id.y + 1234, (float) id.z - 2048);
     pos.y += offset;
 
-    float domainWrap = Fbm(posD / 50) * 30;
+    float domainWrap = Fbm(posD / 100) * 30;
     
-    float n = Fbm((pos += domainWrap) / 90) - 0.2;
+    float n = Fbm((pos += domainWrap) / 200) - 0.2;
     n = min(1, max(0, n));
     Grid[id.xyz] = float4(n, 0, 0, 0);
 }
